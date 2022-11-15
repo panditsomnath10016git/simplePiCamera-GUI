@@ -66,7 +66,7 @@ class App(Tk):
             self.frame_input, text="Cancel", command=self._hide_input_window
         )
         self.btn_close = Button(
-            self.frame_input, text="Cancel", command=self._hide_input_window
+            self.frame_input, text="Close", command=self.close_app
         )
         self.btn_capture.grid(row=0, column=0)
 
@@ -74,7 +74,8 @@ class App(Tk):
         self.ent_img_fname.grid(row=0, column=2, padx=2)
         img_format.grid(row=0, column=3, padx=5)
 
-        self.btn_cancel.grid(row=0, column=8, padx=10, sticky="E")
+        self.btn_cancel.grid(row=0, column=5, padx=10)
+        self.btn_close.grid(row=0, column=6, padx=50, sticky="E")
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
