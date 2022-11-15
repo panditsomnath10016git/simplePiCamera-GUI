@@ -2,6 +2,7 @@ from tkinter import END, Canvas, Entry, Label, Tk
 from tkinter.ttk import Button, Frame, Style
 from time import strftime, sleep
 from picamera import PiCamera
+import os
 
 
 class App(Tk):
@@ -21,6 +22,9 @@ class App(Tk):
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
 
         self.save_dir = "./capture/"
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+
         self.image_format = "jpeg"
 
         self.create_frames()
@@ -65,9 +69,7 @@ class App(Tk):
         self.btn_cancel = Button(
             self.frame_input, text="Cancel", command=self._hide_input_window
         )
-        self.btn_close = Button(
-            self.frame_input, text="Close", command=self.close_app
-        )
+        self.btn_close = Button(self.frame_input, text="Close", command=self.close_app)
         self.btn_capture.grid(row=0, column=0)
 
         img_fname_label.grid(row=0, column=1, padx=5)
@@ -86,7 +88,7 @@ class App(Tk):
     def _capture(self, *event):
         print("Picture captured!" + self.ent_img_fname.get())
         # if in fullscreen mode capture image(ctrl-s) with default name with timestamp
-        if self.camera.preview_fullscreen == True:
+        if self.camera.preview_fullscreen:
             self._set_img_fname()
 
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
