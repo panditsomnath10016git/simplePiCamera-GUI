@@ -2,7 +2,6 @@ from tkinter import END, Canvas, Entry, Label, Tk
 from tkinter.ttk import Button, Frame, Style
 from time import strftime, sleep
 from picamera import PiCamera
-import os
 
 
 class App(Tk):
@@ -22,14 +21,12 @@ class App(Tk):
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
 
         self.save_dir = "./capture/"
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
-
         self.image_format = "jpeg"
 
         self.create_frames()
 
         self.camera.start_preview()
+        self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
 
     def create_frames(self):
@@ -38,7 +35,7 @@ class App(Tk):
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
         )
-        self.frame_input_hight = 80
+        self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
         self.canvas = Canvas(
@@ -63,7 +60,7 @@ class App(Tk):
         )
         img_fname_label = Label(self.frame_input, text="Save image as :", pady=5)
         img_format = Label(self.frame_input, text=f".{self.image_format}", pady=5)
-        self.ent_img_fname = Entry(self.frame_input, width=35)
+        self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
 
         self.btn_cancel = Button(
@@ -77,7 +74,7 @@ class App(Tk):
         img_format.grid(row=0, column=3, padx=5)
 
         self.btn_cancel.grid(row=0, column=5, padx=10)
-        self.btn_close.grid(row=0, column=6, padx=50, sticky="E")
+        self.btn_close.grid(row=0, column=6, padx=30, sticky="E")
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
@@ -88,7 +85,7 @@ class App(Tk):
     def _capture(self, *event):
         print("Picture captured!" + self.ent_img_fname.get())
         # if in fullscreen mode capture image(ctrl-s) with default name with timestamp
-        if self.camera.preview_fullscreen:
+        if self.camera.preview_fullscreen == True:
             self._set_img_fname()
 
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
@@ -107,6 +104,7 @@ class App(Tk):
         self.image_fname = "piCapture" + self.name_dt
         self.ent_img_fname.delete(0, END)
         self.ent_img_fname.insert(0, self.image_fname)
+        self.ent_img_fname.focus()
 
     def _show_input_window(self, *event):
         self._set_img_fname()

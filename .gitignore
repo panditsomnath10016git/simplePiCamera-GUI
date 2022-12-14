@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VS_Code
-.vscode/
+#Vscode
+/.vscode
+
+#PiCamera-GUI
+/capture
