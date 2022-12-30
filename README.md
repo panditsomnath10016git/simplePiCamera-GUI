@@ -8,3 +8,5 @@ An effort to make an simple picamera application to take pictures and videos wit
     - <Control+S> to quick-save instantly with default timestamped filename.
     - <Enter> to save with the filename written in the input panel; If the input panel is hidden it works as quick-save.
     - <Control+C> closes the application.
+
+![simplePiCameraGUI screenshot](/img/screenshotGUI.png "simplePiCameraGUI")
