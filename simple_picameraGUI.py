@@ -1,7 +1,11 @@
+import os
+from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk
 from tkinter.ttk import Button, Frame, Style
-from time import strftime, sleep
+
 from picamera import PiCamera
+
+homedir = os.path.expanduser("~")
 
 
 class App(Tk):
@@ -14,13 +18,15 @@ class App(Tk):
         theme.theme_use("clam")
         # self.geometry("800x480+300+250")
         self.minsize(410, 300)
-        self.title("Move square")
+        self.title("sPiCameraGUI")
 
         self.resolution = (1280, 720)
         self.framerate = 30
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
 
-        self.save_dir = "./capture/"
+        self.save_dir = os.path.join(homedir, "PiCamCapture", "")
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
         self.image_format = "jpeg"
 
         self.create_frames()
