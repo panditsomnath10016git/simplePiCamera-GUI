@@ -31,6 +31,7 @@ class App(Tk):
 
         self.create_frames()
 
+        # TODO if camera not found show error dialogue box.
         self.camera.start_preview()
         self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
@@ -94,6 +95,7 @@ class App(Tk):
         if self.camera.preview_fullscreen == True:
             self._set_img_fname()
 
+        # if same named image present in directory change the filename.
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._show_img_saved()
