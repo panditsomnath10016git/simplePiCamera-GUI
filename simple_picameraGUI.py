@@ -3,7 +3,9 @@ from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk
 from tkinter.ttk import Button, Frame, Style
 
-from picamera import PiCamera
+from picameraa import PiCamera
+
+
 
 homedir = os.path.expanduser("~")
 
@@ -11,12 +13,16 @@ homedir = os.path.expanduser("~")
 class App(Tk):
     def __init__(self, **kw) -> None:
         super().__init__(**kw)
+        #for testing without camera
+        self.screen_width = 800
+        self.screen_height = 480
+
         theme = Style()
         self.focus_force()
 
         # themes ('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
         theme.theme_use("clam")
-        # self.geometry("800x480+300+250")
+        #self.geometry("800x480+300+250")
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
 
@@ -38,10 +44,10 @@ class App(Tk):
 
     def create_frames(self):
         self.window = Frame(self.master)
-        self.screen_width, self.screen_height = (
+        '''self.screen_width, self.screen_height = (
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
-        )
+        )'''
         self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
@@ -133,7 +139,7 @@ class App(Tk):
 
 if __name__ == "__main__":
     app = App()
-    app.attributes("-fullscreen", True)
+    #app.attributes("-fullscreen", True)
     # app.focus_force()
     app.bind("<Return>", app._capture)
     app.bind("<Control-s>", app._capture)
