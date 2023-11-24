@@ -1,10 +1,9 @@
 import os
 from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk
-from tkinter.ttk import Button, Frame, Style
+from tkinter.ttk import Button, Frame, Style, Spinbox
 
 from picameraa import PiCamera
-
 
 
 homedir = os.path.expanduser("~")
@@ -13,7 +12,7 @@ homedir = os.path.expanduser("~")
 class App(Tk):
     def __init__(self, **kw) -> None:
         super().__init__(**kw)
-        #for testing without camera
+        # for testing without camera
         self.screen_width = 800
         self.screen_height = 480
 
@@ -22,9 +21,11 @@ class App(Tk):
 
         # themes ('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
         theme.theme_use("clam")
-        #self.geometry("800x480+300+250")
+        # self.geometry("800x480+300+250")
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
+
+        self.lens_zoom = 10
 
         self.resolution = (1280, 720)
         self.framerate = 30
@@ -44,10 +45,10 @@ class App(Tk):
 
     def create_frames(self):
         self.window = Frame(self.master)
-        '''self.screen_width, self.screen_height = (
+        """self.screen_width, self.screen_height = (
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
-        )'''
+        )"""
         self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
@@ -71,8 +72,14 @@ class App(Tk):
         self.btn_capture = Button(
             self.frame_input, text="Capture", command=self._capture
         )
-        img_fname_label = Label(self.frame_input, text="Save image as :", pady=5)
-        img_format = Label(self.frame_input, text=f".{self.image_format}", pady=5)
+        img_fname_label = Label(
+            self.frame_input,
+            text="Save image as :",
+        )
+        img_format = Label(
+            self.frame_input,
+            text=f".{self.image_format}",
+        )
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
 
@@ -80,14 +87,28 @@ class App(Tk):
             self.frame_input, text="Cancel", command=self._hide_input_window
         )
         self.btn_close = Button(self.frame_input, text="Close", command=self.close_app)
+        self.btn_zoom = Spinbox(
+            self.frame_input,
+            values=("10X", "20X", "50X", "100X"),
+            textvariable=self.lens_zoom,
+            width=4,
+            command=self.set_zoom(),
+            state='readonly'
+        )
+        # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_capture.grid(row=0, column=0)
 
         img_fname_label.grid(row=0, column=1, padx=5)
-        self.ent_img_fname.grid(row=0, column=2, padx=2)
+        self.ent_img_fname.grid(row=0, column=2, padx=0)
         img_format.grid(row=0, column=3, padx=5)
+        self.btn_zoom.grid(row=0, column=4, padx=5)
+        # self.zoom_label.grid(row=0, column=5, padx=5)
 
-        self.btn_cancel.grid(row=0, column=5, padx=10)
-        self.btn_close.grid(row=0, column=6, padx=30, sticky="E")
+        self.btn_cancel.grid(row=0, column=6, padx=10)
+        self.btn_close.grid(row=0, column=7, padx=30, sticky="W")
+
+    def set_zoom(self, **kwargs):
+        pass
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
@@ -139,7 +160,7 @@ class App(Tk):
 
 if __name__ == "__main__":
     app = App()
-    #app.attributes("-fullscreen", True)
+    # app.attributes("-fullscreen", True)
     # app.focus_force()
     app.bind("<Return>", app._capture)
     app.bind("<Control-s>", app._capture)
