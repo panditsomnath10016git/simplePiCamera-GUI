@@ -2,7 +2,7 @@ import os
 from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk
 from tkinter.ttk import Button, Frame, Style, Spinbox
-from numpy import zeros
+import numpy as np
 
 from picamera import PiCamera
 
@@ -111,7 +111,7 @@ class App(Tk):
         # Create an array representing a 1280x720 image of
         # a cross through the center of the display. The shape of
         # the array must be of the form (height, width, color)
-        a = zeros((720, 1280, 3), dtype=np.uint8)
+        a = np.zeros((720, 1280, 3), dtype=np.uint8)
         a[360, :, :] = 0xff
         a[:, 640, :] = 0xff
         # Add the overlay directly into layer 3 with transparency;
