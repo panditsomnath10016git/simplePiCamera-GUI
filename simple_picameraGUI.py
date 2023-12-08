@@ -20,7 +20,7 @@ class App(Tk):
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
 
-        self.lens_zoom = 10
+        self.lens_zoom = "10X"
 
         self.resolution = (1280, 720)
         self.framerate = 30
@@ -78,9 +78,10 @@ class App(Tk):
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
 
-        self.btn_cancel = Button(
+        #TODO add stop button
+        """self.btn_cancel = Button(
             self.frame_input, text="Cancel", command=self._hide_input_window
-        )
+        )"""
         self.btn_close = Button(self.frame_input, text="Close", command=self.close_app)
         self.btn_zoom = Spinbox(
             self.frame_input,
@@ -88,7 +89,7 @@ class App(Tk):
             textvariable=self.lens_zoom,
             width=4,
             command=self.set_zoom(),
-            state='readonly'
+            state="readonly",
         )
         # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_capture.grid(row=0, column=0)
@@ -104,6 +105,21 @@ class App(Tk):
 
     def set_zoom(self, **kwargs):
         pass
+
+    def _add_overlay(self, **kwargs):
+        # Create an array representing a 1280x720 image of
+        # a cross through the center of the display. The shape of
+        # the array must be of the form (height, width, color)
+        a = np.zeros((720, 1280, 3), dtype=np.uint8)
+        a[360, :, :] = 0xff
+        a[:, 640, :] = 0xff
+        # Add the overlay directly into layer 3 with transparency;
+        # we can omit the size parameter of add_overlay as the
+        # size is the same as the camera's resolution
+        o = self.camera.add_overlay(memoryview(a), layer=3, alpha=64)
+
+    def _remove_overlay(self, overlay):
+        self.camera.remove_overlay(overlay)
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
