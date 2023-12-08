@@ -1,7 +1,7 @@
 import os
 from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk
-from tkinter.ttk import Button, Frame, Style
+from tkinter.ttk import Button, Frame, Style, Spinbox
 
 from picamera import PiCamera
 
@@ -19,6 +19,8 @@ class App(Tk):
         # self.geometry("800x480+300+250")
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
+
+        self.lens_zoom = 10
 
         self.resolution = (1280, 720)
         self.framerate = 30
@@ -65,8 +67,14 @@ class App(Tk):
         self.btn_capture = Button(
             self.frame_input, text="Capture", command=self._capture
         )
-        img_fname_label = Label(self.frame_input, text="Save image as :", pady=5)
-        img_format = Label(self.frame_input, text=f".{self.image_format}", pady=5)
+        img_fname_label = Label(
+            self.frame_input,
+            text="Save image as :",
+        )
+        img_format = Label(
+            self.frame_input,
+            text=f".{self.image_format}",
+        )
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
 
@@ -74,14 +82,28 @@ class App(Tk):
             self.frame_input, text="Cancel", command=self._hide_input_window
         )
         self.btn_close = Button(self.frame_input, text="Close", command=self.close_app)
+        self.btn_zoom = Spinbox(
+            self.frame_input,
+            values=("10X", "20X", "50X", "100X"),
+            textvariable=self.lens_zoom,
+            width=4,
+            command=self.set_zoom(),
+            state='readonly'
+        )
+        # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_capture.grid(row=0, column=0)
 
         img_fname_label.grid(row=0, column=1, padx=5)
-        self.ent_img_fname.grid(row=0, column=2, padx=2)
+        self.ent_img_fname.grid(row=0, column=2, padx=0)
         img_format.grid(row=0, column=3, padx=5)
+        self.btn_zoom.grid(row=0, column=4, padx=5)
+        # self.zoom_label.grid(row=0, column=5, padx=5)
 
-        self.btn_cancel.grid(row=0, column=5, padx=10)
-        self.btn_close.grid(row=0, column=6, padx=30, sticky="E")
+        self.btn_cancel.grid(row=0, column=6, padx=10)
+        self.btn_close.grid(row=0, column=7, padx=30, sticky="W")
+
+    def set_zoom(self, **kwargs):
+        pass
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
