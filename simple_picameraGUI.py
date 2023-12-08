@@ -99,7 +99,7 @@ class App(Tk):
         self.btn_zoom.grid(row=0, column=4, padx=5)
         # self.zoom_label.grid(row=0, column=5, padx=5)
 
-        self.btn_cancel.grid(row=0, column=6, padx=10)
+        # self.btn_cancel.grid(row=0, column=6, padx=10)
         self.btn_close.grid(row=0, column=7, padx=30, sticky="W")
 
     def set_zoom(self, **kwargs):
