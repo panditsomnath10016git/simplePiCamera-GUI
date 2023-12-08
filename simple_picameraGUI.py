@@ -38,6 +38,7 @@ class App(Tk):
         self.camera.start_preview()
         self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
+        self._add_overlay()
 
     def create_frames(self):
         self.window = Frame(self.master)
