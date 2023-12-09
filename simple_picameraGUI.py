@@ -38,7 +38,8 @@ class App(Tk):
         self.camera.start_preview()
         # self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
-        self._add_overlay()
+        #self._add_overlay()
+        self._add_scalebar()
 
     def create_frames(self):
         self.window = Frame(self.master)
@@ -107,22 +108,29 @@ class App(Tk):
 
     def set_zoom(self, **kwargs):
         pass
+    
+    def _add_scalebar(self):
+        self.camera.annotate_background = True
+        self.camera.annotate_text_size = 20
+        self.camera.annotate_text = f"_____________.\n  100 um"
 
-    def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
+    '''def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
         # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
-        a = np.zeros((*self.resolution, a), dtype=np.uint8)  # black line
+        a = np.zeros((*self.resolution, 4), dtype=np.uint8)  # black line
         # draw the scale line
         x_offset = 10
         y_offset = 50
-        a[-y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :,:] = 0x00
+        a[
+            -y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :, :
+    3  ] = 0x00
         # Add the overlay directly into layer 3 with transparency;
         # we can omit the size parameter of add_overlay as the
         # size is the same as the camera's resolution
         self.overlay = self.camera.add_overlay(memoryview(a), layer=3, alpha=255)
 
     def _remove_overlay(self, overlay):
-        self.camera.remove_overlay(overlay)
+        self.camera.remove_overlay(overlay)'''
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
