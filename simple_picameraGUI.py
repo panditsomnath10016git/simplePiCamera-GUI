@@ -38,7 +38,7 @@ class App(Tk):
         self.camera.start_preview()
         # self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
-        #self._add_overlay()
+        # self._add_overlay()
         self._add_scalebar()
 
     def create_frames(self):
@@ -108,13 +108,13 @@ class App(Tk):
 
     def set_zoom(self, **kwargs):
         pass
-    
-    def _add_scalebar(self):
-        self.camera.annotate_background = True
-        self.camera.annotate_text_size = 20
-        self.camera.annotate_text = f"_____________.\n  100 um"
 
-    '''def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
+    def _add_scalebar(self, len=10):
+        self.camera.annotate_background = True
+        self.camera.annotate_text_size = 5
+        self.camera.annotate_text = "#" * len
+
+    """def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
         # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
         a = np.zeros((*self.resolution, 4), dtype=np.uint8)  # black line
@@ -130,7 +130,7 @@ class App(Tk):
         self.overlay = self.camera.add_overlay(memoryview(a), layer=3, alpha=255)
 
     def _remove_overlay(self, overlay):
-        self.camera.remove_overlay(overlay)'''
+        self.camera.remove_overlay(overlay)"""
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
@@ -153,8 +153,8 @@ class App(Tk):
         self.camera.annotate_background = True
         self.camera.annotate_text_size = 20
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
-        sleep(2)
-        self.camera.annotate_text = ""
+        sleep(1)
+        self._add_scalebar()
 
     def _set_img_fname(self):
         self.name_dt = strftime("%Y_%m_%d-%H%M%S")
