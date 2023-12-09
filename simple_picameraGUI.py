@@ -23,6 +23,7 @@ class App(Tk):
 
         self.lens_zoom = "10X"
         self.scale_unit = StringVar("um")
+        self.physical_len = 100
 
         self.resolution = (1280, 720)
         self.framerate = 30
