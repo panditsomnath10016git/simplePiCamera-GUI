@@ -1,6 +1,6 @@
 import os
 from time import sleep, strftime
-from tkinter import END, Canvas, Entry, Label, Tk
+from tkinter import END, Canvas, Entry, Label, Tk, StringVar, Radiobutton
 from tkinter.ttk import Button, Frame, Style, Spinbox
 import numpy as np
 
@@ -22,6 +22,7 @@ class App(Tk):
         self.title("sPiCameraGUI")
 
         self.lens_zoom = "10X"
+        self.scale_unit = StringVar("um")
 
         self.resolution = (1280, 720)
         self.framerate = 30
@@ -47,7 +48,7 @@ class App(Tk):
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
         )
-        self.frame_input_hight = round(self.screen_height / 13)
+        self.frame_input_hight = 2 * round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
         self.canvas = Canvas(
@@ -61,6 +62,7 @@ class App(Tk):
             column=0, row=0, sticky="nsew"
         )  # pack(anchor="nw", expand=True)
         self.frame_input.grid(column=0, row=1, sticky="nsew")
+        self.frame_calib.grid(column=0, row=2, sticky="nsew")
         self.window.pack(
             fill="both", expand=True
         )  # grid(column=0, row=0, sticky="nsew")
@@ -108,16 +110,69 @@ class App(Tk):
         # self.btn_cancel.grid(row=0, column=6, padx=10)
         self.btn_close.grid(row=0, column=7, padx=30, sticky="W")
 
+    def _calibration_frame(self):
+        self.frame_calib = Frame(self.window)
+        bar_len_label = Label(
+            self.frame_calib,
+            text="Scale bar length :",
+        )
+        self.btn_bar_down = Button(
+            self.frame_calib,
+            text="↓",
+            command=lambda x: self._add_scalebar(len=self.scalebar_len - 1),
+            width=2,
+        )
+        self.btn_bar_up = Button(
+            self.frame_calib,
+            text="↑",
+            command=lambda x: self._add_scalebar(len=self.scalebar_len + 1),
+            width=2,
+        )
+
+        label_physical_len = Label(
+            self.frame_calib,
+            text="Physical length :",
+        )
+        self.ent_actual_len = Entry(self.frame_calib, width=10)
+
+        um_scale = Radiobutton(
+            self.frame_calib, text="um", variable=self.scale_unit, value="um"
+        )
+        mm_scale = Radiobutton(
+            self.frame_calib, text="mm", variable=self.scale_unit, value="mm"
+        )
+
+        self.btn_apply = Button(
+            self.frame_input, text="apply", width=5, command=self._recalculate_scale
+        )
+
+        self.bar_len_label.grid(row=0, column=0)
+
+        self.btn_bar_down.grid(row=0, column=1, padx=5)
+        self.btn_bar_up.grid(row=0, column=2, padx=5)
+        label_physical_len.grid(row=0, column=3, padx=5)
+        self.ent_actual_len.grid(row=0, column=4, padx=0)
+        um_scale.grid(row=0, column=5, padx=2)
+        mm_scale.grid(row=0, column=6, padx=2)
+        self.btn_apply.grid(row=0, column=7, padx=5)
+
+    def _recalculate_scale(self):
+        # calculate scale length(with min length 10) to a rounded physical value
+        pass
+
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len=20, physical_len="100 um"):
+    def _add_scalebar(self, len=20):
+        self.scalebar_len = len
         self.camera.annotate_background = True
         self.camera.annotate_text_size = 20
-        self.camera.annotate_text = "_" * len + f"\n{physical_len}"
+        self.camera.annotate_text = (
+            "_" * len + f"\n{self.physical_len} {self.scale_unit}"
+        )
 
     def _calibrate_scale(self):
-        #TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
+        # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
         # get standard length to show as scalebar.
         pass
 
@@ -174,10 +229,13 @@ class App(Tk):
         self.ent_img_fname.focus()
 
     def _show_input_window(self, *event):
-        self._set_img_fname()
         self.canvas.config(height=(self.screen_height - self.frame_input_hight))
         self._set_camera_preview_size(fs=False)
-        self.bind("<Escape>", self._hide_input_window)
+
+    def _show_calibration_window(self, *event):
+        self.canvas.config(height=(self.screen_height - 2 * self.frame_input_hight))
+        self._set_camera_preview_size(fs=False)
+        self.bind("<Escape>", self._show_input_window)
 
     def _hide_input_window(self, *event):
         self.canvas.config(height=(self.screen_height))
