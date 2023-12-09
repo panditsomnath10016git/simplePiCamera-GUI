@@ -126,10 +126,11 @@ class App(Tk):
         # x_offset = int((self.canvas_width - camera_width) / 2)
         self.camera.preview_window = (0, 0, camera_width, self.canvas_height)
 
-    def _capture(self, *event):
+    def _capture(self, quick=False, *event):
         print("Picture captured!" + self.ent_img_fname.get())
         # capture image(ctrl-s) with default name with timestamp
-        self._set_img_fname()
+        if quick:
+            self._set_img_fname()
 
         # if same named image present in directory change the filename.
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
@@ -172,6 +173,6 @@ if __name__ == "__main__":
     app.attributes("-fullscreen", True)
     # app.focus_force()
     app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", app._capture)
+    app.bind("<Control-s>", lambda x : app._capture(quick=True))
     app.bind("<Control-c>", lambda x: app.close_app())
     app.mainloop()
