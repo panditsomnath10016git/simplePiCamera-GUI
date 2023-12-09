@@ -36,7 +36,7 @@ class App(Tk):
 
         # TODO if camera not found show error dialogue box.
         self.camera.start_preview()
-        #self.bind("<Escape>", self._hide_input_window)
+        # self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
         self._add_overlay()
 
@@ -111,7 +111,11 @@ class App(Tk):
     def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
         # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
-        a = np.full((scale_len, scale_wid, 3), 0x00, dtype=np.uint8)  # black line
+        a = np.zeros((*self.resolution, 3), dtype=np.uint8)  # black line
+        # draw the scale line
+        x_offset = 10
+        y_offset = 50
+        a[-y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :] = 0x00
         # Add the overlay directly into layer 3 with transparency;
         # we can omit the size parameter of add_overlay as the
         # size is the same as the camera's resolution
@@ -173,6 +177,6 @@ if __name__ == "__main__":
     app.attributes("-fullscreen", True)
     # app.focus_force()
     app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", lambda x : app._capture(quick=True))
+    app.bind("<Control-s>", lambda x: app._capture(quick=True))
     app.bind("<Control-c>", lambda x: app.close_app())
     app.mainloop()
