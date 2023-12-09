@@ -38,7 +38,7 @@ class App(Tk):
         self.camera.start_preview()
         # self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
-        self._add_overlay()
+        #self._add_overlay()
         self._add_scalebar()
 
     def create_frames(self):
@@ -119,7 +119,7 @@ class App(Tk):
     def _calibrate_scale(self):
         pass
 
-    def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
+    '''def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
         # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
         a = np.zeros(
@@ -137,7 +137,7 @@ class App(Tk):
         self.overlay = self.camera.add_overlay(a.tobytes(), layer=3, alpha=64)
 
     def _remove_overlay(self, overlay):
-        self.camera.remove_overlay(overlay)
+        self.camera.remove_overlay(overlay)'''
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
