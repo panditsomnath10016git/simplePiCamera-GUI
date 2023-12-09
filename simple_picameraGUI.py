@@ -109,10 +109,12 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len=10):
+    def _add_scalebar(self, len=20, physical_len=100):
         self.camera.annotate_background = True
-        self.camera.annotate_text_size = 5
-        self.camera.annotate_text = "#" * len
+        self.camera.annotate_text_size = 6
+        self.camera.annotate_text = (
+            " " * len + "\n" + " " * len + f"\n{physical_len} um"
+        )
 
     """def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
         # Create an array representing a image. The shape of
