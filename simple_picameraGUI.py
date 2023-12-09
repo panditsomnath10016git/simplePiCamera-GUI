@@ -85,7 +85,9 @@ class App(Tk):
         """self.btn_cancel = Button(
             self.frame_input, text="Cancel", command=self._hide_input_window
         )"""
-        self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
+        self.btn_close = Button(
+            self.frame_input, text="Close", width=5, command=self.close_app
+        )
         self.btn_zoom = Spinbox(
             self.frame_input,
             values=("10X", "20X", "50X", "100X"),
@@ -114,23 +116,28 @@ class App(Tk):
         self.camera.annotate_text_size = 20
         self.camera.annotate_text = "_" * len + f"\n{physical_len}"
 
-    """def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
+    def _calibrate_scale(self):
+        pass
+
+    def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
         # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
-        a = np.zeros((*self.resolution, 4), dtype=np.uint8)  # black line
+        a = np.zeros(
+            (self.canvas_width, self.canvas_height, 4), dtype=np.uint8
+        )  # black line
         # draw the scale line
-        x_offset = 10
-        y_offset = 50
+        x_offset = 1
+        y_offset = 2
         a[
-            -y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :, :
-    3  ] = 0x00
+            -y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :
+        ] = 0xFF
         # Add the overlay directly into layer 3 with transparency;
         # we can omit the size parameter of add_overlay as the
         # size is the same as the camera's resolution
-        self.overlay = self.camera.add_overlay(memoryview(a), layer=3, alpha=255)
+        self.overlay = self.camera.add_overlay(np.tobytes(a), layer=3, alpha=64)
 
     def _remove_overlay(self, overlay):
-        self.camera.remove_overlay(overlay)"""
+        self.camera.remove_overlay(overlay)
 
     def _set_camera_preview_size(self, fs=False):
         self.camera.preview_fullscreen = fs
