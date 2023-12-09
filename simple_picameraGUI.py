@@ -80,7 +80,7 @@ class App(Tk):
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
 
-        #TODO add stop button
+        # TODO add stop button
         """self.btn_cancel = Button(
             self.frame_input, text="Cancel", command=self._hide_input_window
         )"""
@@ -108,22 +108,20 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_overlay(self, **kwargs):
-        # Create an array representing a 1280x720 image of
-        # a cross through the center of the display. The shape of
+    def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
+        # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
-        a = np.zeros((720, 1280, 3), dtype=np.uint8)
-        a[360, :, :] = 0xff
-        a[:, 640, :] = 0xff
+        a = np.full((scale_len, scale_wid, 3), 0x00, dtype=np.uint8)  # black line
         # Add the overlay directly into layer 3 with transparency;
         # we can omit the size parameter of add_overlay as the
         # size is the same as the camera's resolution
-        o = self.camera.add_overlay(memoryview(a), layer=3, alpha=64)
+        self.overlay = self.camera.add_overlay(memoryview(a), layer=3, alpha=255)
 
     def _remove_overlay(self, overlay):
         self.camera.remove_overlay(overlay)
 
     def _set_camera_preview_size(self, fs=False):
+        # TODO remove this size chage for scalebar
         self.camera.preview_fullscreen = fs
         camera_width = int(1280 * self.canvas_height / 720)
         x_offset = int((self.canvas_width - camera_width) / 2)
