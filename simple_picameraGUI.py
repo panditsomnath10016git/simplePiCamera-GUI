@@ -111,11 +111,11 @@ class App(Tk):
     def _add_overlay(self, scale_len=100, scale_wid=5, **kwargs):
         # Create an array representing a image. The shape of
         # the array must be of the form (height, width, color)
-        a = np.zeros((*self.resolution, 3), dtype=np.uint8)  # black line
+        a = np.zeros((*self.resolution, a), dtype=np.uint8)  # black line
         # draw the scale line
         x_offset = 10
         y_offset = 50
-        a[-y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :] = 0x00
+        a[-y_offset - scale_wid : -y_offset, -x_offset - scale_len : -x_offset, :,:] = 0x00
         # Add the overlay directly into layer 3 with transparency;
         # we can omit the size parameter of add_overlay as the
         # size is the same as the camera's resolution
