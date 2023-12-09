@@ -58,6 +58,7 @@ class App(Tk):
             bg="white",
         )
         self._input_frame()
+        self._calibration_frame()
         self.canvas.grid(
             column=0, row=0, sticky="nsew"
         )  # pack(anchor="nw", expand=True)
@@ -146,8 +147,7 @@ class App(Tk):
             self.frame_input, text="apply", width=5, command=self._recalculate_scale
         )
 
-        self.bar_len_label.grid(row=0, column=0)
-
+        bar_len_label.grid(row=0, column=0)
         self.btn_bar_down.grid(row=0, column=1, padx=5)
         self.btn_bar_up.grid(row=0, column=2, padx=5)
         label_physical_len.grid(row=0, column=3, padx=5)
