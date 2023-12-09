@@ -134,7 +134,7 @@ class App(Tk):
         # Add the overlay directly into layer 3 with transparency;
         # we can omit the size parameter of add_overlay as the
         # size is the same as the camera's resolution
-        self.overlay = self.camera.add_overlay(np.tobytes(a), layer=3, alpha=64)
+        self.overlay = self.camera.add_overlay(a.tobytes(), layer=3, alpha=64)
 
     def _remove_overlay(self, overlay):
         self.camera.remove_overlay(overlay)
