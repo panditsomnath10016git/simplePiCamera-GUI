@@ -68,11 +68,11 @@ class App(Tk):
     def _input_frame(self):
         self.frame_input = Frame(self.window)
         self.btn_capture = Button(
-            self.frame_input, text="Capture", command=self._capture
+            self.frame_input, text="Capture", command=self._capture, width=7
         )
         img_fname_label = Label(
             self.frame_input,
-            text="Save image as :",
+            text="Save as :",
         )
         img_format = Label(
             self.frame_input,
@@ -85,7 +85,7 @@ class App(Tk):
         """self.btn_cancel = Button(
             self.frame_input, text="Cancel", command=self._hide_input_window
         )"""
-        self.btn_close = Button(self.frame_input, text="Close", command=self.close_app)
+        self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
         self.btn_zoom = Spinbox(
             self.frame_input,
             values=("10X", "20X", "50X", "100X"),
@@ -109,7 +109,7 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len=20, physical_len='100 um'):
+    def _add_scalebar(self, len=20, physical_len="100 um"):
         self.camera.annotate_background = True
         self.camera.annotate_text_size = 20
         self.camera.annotate_text = "_" * len + f"\n{physical_len}"
