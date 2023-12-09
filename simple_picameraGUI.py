@@ -36,7 +36,7 @@ class App(Tk):
 
         # TODO if camera not found show error dialogue box.
         self.camera.start_preview()
-        self.bind("<Escape>", self._hide_input_window)
+        #self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
         self._add_overlay()
 
@@ -121,17 +121,15 @@ class App(Tk):
         self.camera.remove_overlay(overlay)
 
     def _set_camera_preview_size(self, fs=False):
-        # TODO remove this size chage for scalebar
         self.camera.preview_fullscreen = fs
         camera_width = int(1280 * self.canvas_height / 720)
-        x_offset = int((self.canvas_width - camera_width) / 2)
-        self.camera.preview_window = (x_offset, 0, camera_width, self.canvas_height)
+        # x_offset = int((self.canvas_width - camera_width) / 2)
+        self.camera.preview_window = (0, 0, camera_width, self.canvas_height)
 
     def _capture(self, *event):
         print("Picture captured!" + self.ent_img_fname.get())
-        # if in fullscreen mode capture image(ctrl-s) with default name with timestamp
-        if self.camera.preview_fullscreen == True:
-            self._set_img_fname()
+        # capture image(ctrl-s) with default name with timestamp
+        self._set_img_fname()
 
         # if same named image present in directory change the filename.
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
