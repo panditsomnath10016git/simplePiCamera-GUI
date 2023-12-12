@@ -12,9 +12,6 @@ homedir = os.path.expanduser("~")
 class App(Tk):
     def __init__(self, **kw) -> None:
         super().__init__(**kw)
-        # for testing without camera
-        self.screen_width = 800
-        self.screen_height = 480
 
         theme = Style()
         self.focus_force()
@@ -53,6 +50,9 @@ class App(Tk):
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
         )"""
+        # for testing without camera
+        self.screen_width = 800
+        self.screen_height = 480
         self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
@@ -110,11 +110,12 @@ class App(Tk):
         img_fname_label.grid(row=0, column=1, padx=5)
         self.ent_img_fname.grid(row=0, column=2, padx=0)
         img_format.grid(row=0, column=3, padx=5)
+
         self.btn_zoom.grid(row=0, column=4, padx=5)
         # self.zoom_label.grid(row=0, column=5, padx=5)
 
         # self.btn_cancel.grid(row=0, column=6, padx=10)
-        self.btn_close.grid(row=0, column=7, padx=30, sticky="W")
+        self.btn_close.grid(row=0, column=5, padx=2, sticky="W")
 
     def _calibration_frame(self):
         self.frame_calib = Frame(self.window)
@@ -149,7 +150,7 @@ class App(Tk):
         )
 
         self.btn_apply = Button(
-            self.frame_input, text="apply", width=5, command=self._recalculate_scale
+            self.frame_calib, text="apply", width=5, command=self._recalculate_scale
         )
 
         bar_len_label.grid(row=0, column=0)
@@ -213,7 +214,7 @@ class App(Tk):
         if quick:
             self._set_img_fname()
 
-        # if same named image present in directory change the filename.
+        # TODO if same named image present in directory change the filename.
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
@@ -235,17 +236,17 @@ class App(Tk):
 
     def _show_input_window(self, *event):
         self.canvas.config(height=(self.screen_height - self.frame_input_hight))
-        self._set_camera_preview_size(fs=False)
+        # self._set_camera_preview_size(fs=False)
 
     def _show_calibration_window(self, *event):
         self.canvas.config(height=(self.screen_height - 2 * self.frame_input_hight))
-        self._set_camera_preview_size(fs=False)
+        # self._set_camera_preview_size(fs=False)
         self.bind("<Escape>", self._show_input_window)
 
-    def _hide_input_window(self, *event):
+    """def _hide_input_window(self, *event):
         self.canvas.config(height=(self.screen_height))
         self._set_camera_preview_size(fs=True)
-        self.bind("<Escape>", self._show_input_window)
+        self.bind("<Escape>", self._show_input_window)"""
 
     def close_app(self):
         self.camera.stop_preview()
