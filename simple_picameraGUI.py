@@ -1,4 +1,5 @@
 import os
+import json
 from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk, StringVar, Radiobutton
 from tkinter.ttk import Button, Frame, Style, Spinbox
@@ -25,16 +26,31 @@ class App(Tk):
 
         self.lens_zoom = "10X"
         self.scale_unit = StringVar(self, "um")
+        self.scalebar_len = 20
         self.physical_len = 100
 
         self.resolution = (1280, 720)
         self.framerate = 30
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
+        self.camera.annotate_text_size = 20
 
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
+
+        # TODO load calib data if available
+        """self.calib_data = (self.camera.annotate_text_size, self.scalebar_len, self.physical_len)
+
+        with open("calib.json", "w") as f:
+            # indent=2 is not needed but makes the file human-readable
+            # if the data is nested
+            json.dump(self.calib_data, f, indent=2)
+        with open("calib.json", "r") as f:
+            # indent=2 is not needed but makes the file human-readable
+            # if the data is nested
+            (a, b, c) = json.load(f)
+            print(a,b,c)"""
 
         self.create_frames()
 
@@ -172,11 +188,11 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len=20):
-        self.scalebar_len = len
+    def _add_scalebar(self):
         self.camera.annotate_background = True
-        self.camera.annotate_text_size = 20
-        self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit}"
+        self.camera.annotate_text = (
+            "_" * self.scalebar_len + f"\n{self.physical_len} {self.scale_unit}"
+        )
 
     def _calibrate_scale(self):
         # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
@@ -223,7 +239,6 @@ class App(Tk):
 
     def _show_img_saved(self):
         self.camera.annotate_background = True
-        self.camera.annotate_text_size = 20
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
         self._add_scalebar()
