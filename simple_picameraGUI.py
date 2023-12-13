@@ -62,7 +62,6 @@ class App(Tk):
         self.create_frames()
 
         # TODO if camera not found show error dialogue box.
-        self.camera.start_preview()
         # self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
         # self._add_overlay()
@@ -80,11 +79,11 @@ class App(Tk):
         self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
-        self.canvas = Frame( #changed canvas to frame -maybe better performance
+        self.canvas = Frame(  # changed canvas to frame -maybe better performance
             self.window,
             width=self.canvas_width,
             height=self.canvas_height,
-           # bg="white",
+            # bg="white",
         )
         self._input_frame()
         self._calibration_frame()
@@ -304,6 +303,7 @@ if __name__ == "__main__":
     # app.attributes("-fullscreen", True)
     # app.focus_force()
     # app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", lambda : app._capture(quick=True))
-    app.bind("<Control-c>", lambda : app.close_app())
+    app.bind("<Control-s>", lambda: app._capture(quick=True))
+    app.bind("<Control-c>", lambda: app.close_app())
+    app.camera.start_preview()
     app.mainloop()
