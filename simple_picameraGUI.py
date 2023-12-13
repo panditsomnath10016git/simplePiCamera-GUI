@@ -55,9 +55,9 @@ class App(Tk):
             self.scalebar_len,
             self.physical_len,
             self.scale_unit.get(),
-        )
-        with open("calib.json", "w") as f:
-            json.dump(self.calib_data, f, indent=2)
+            )
+            with open("calib.json", "w") as f:
+                json.dump(self.calib_data, f, indent=2)
 
         self.create_frames()
 
