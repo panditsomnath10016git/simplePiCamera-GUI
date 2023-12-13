@@ -24,7 +24,7 @@ class App(Tk):
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
 
-        self.lens_zoom = "10X"
+        self.lens_zoom = StringVar(self, "10X")
         self.scale_unit = StringVar(self, "um")
         self.scalebar_len = 20
         self.physical_len = 100
@@ -47,14 +47,17 @@ class App(Tk):
                     self.scalebar_len,
                     self.physical_len,
                     scale_unit,
+                    lens_zoom,
                 ) = json.load(f)
             self.scale_unit.set(scale_unit)
+            self.lens_zoom.set(lens_zoom)
         except:
             self.calib_data = (
                 self.camera.annotate_text_size,
                 self.scalebar_len,
                 self.physical_len,
                 self.scale_unit.get(),
+                self.lens_zoom.get(),
             )
             with open("calib.json", "w") as f:
                 json.dump(self.calib_data, f, indent=2)
@@ -196,9 +199,12 @@ class App(Tk):
             self.scalebar_len,
             self.physical_len,
             self.scale_unit.get(),
+            self.lens_zoom.get(),
         )
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
+        # TODO calcuate bars per length  for the zoom level and update the scalebar according to the zoom set
+        self.bars_per_len = self.scalebar_len / self.physical_len
 
     def set_zoom(self, **kwargs):
         pass
