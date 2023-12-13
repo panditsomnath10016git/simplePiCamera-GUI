@@ -39,7 +39,7 @@ class App(Tk):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
 
-        # load calib data from calib.json else create initial file
+        # try loading calib data from calib.json else create initial file
         try:
             with open("calib.json", "r") as f:
                 (
@@ -49,15 +49,15 @@ class App(Tk):
                     scale_unit,
                 ) = json.load(f)
             self.scale_unit.set(scale_unit)
-        except :
+        except:
             self.calib_data = (
-            self.camera.annotate_text_size,
-            self.scalebar_len,
-            self.physical_len,
-            self.scale_unit.get(),
-        )
-        with open("calib.json", "w") as f:
-            json.dump(self.calib_data, f, indent=2)
+                self.camera.annotate_text_size,
+                self.scalebar_len,
+                self.physical_len,
+                self.scale_unit.get(),
+            )
+            with open("calib.json", "w") as f:
+                json.dump(self.calib_data, f, indent=2)
 
         self.create_frames()
 
@@ -80,11 +80,11 @@ class App(Tk):
         self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
-        self.canvas = Canvas(
+        self.canvas = Frame( #changed canvas to frame -maybe better performance
             self.window,
             width=self.canvas_width,
             height=self.canvas_height,
-            bg="white",
+           # bg="white",
         )
         self._input_frame()
         self._calibration_frame()
@@ -151,13 +151,13 @@ class App(Tk):
         self.btn_bar_down = Button(
             self.frame_calib,
             text="↓",
-            command=lambda x: self._add_scalebar(len=self.scalebar_len - 1),
+            command=lambda: self._add_scalebar(len=self.scalebar_len - 1),
             width=2,
         )
         self.btn_bar_up = Button(
             self.frame_calib,
             text="↑",
-            command=lambda x: self._add_scalebar(len=self.scalebar_len + 1),
+            command=lambda: self._add_scalebar(len=self.scalebar_len + 1),
             width=2,
         )
 
@@ -191,7 +191,7 @@ class App(Tk):
         self.btn_apply.grid(row=0, column=7, padx=5)
         self.btn_OK.grid(row=0, column=8, padx=5)
 
-    def _recalculate_scale(self):
+    def _recalculate_scale(self, *event):
         # calculate scale length(with min length 10) to a rounded physical value
         self.physical_len = float(self.ent_measured_len.get())
         self.calib_data = (
@@ -206,7 +206,7 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len):
+    def _add_scalebar(self, len, *event):
         self.scalebar_len = len
         self.camera.annotate_background = True
         self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit.get()}"
@@ -258,7 +258,7 @@ class App(Tk):
         self.camera.annotate_background = True
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
-        self._add_scalebar()
+        self._add_scalebar(len=self.scalebar_len)
 
     def _set_img_fname(self):
         self.name_dt = strftime("%Y_%m_%d-%H%M%S")
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     app = App()
     # app.attributes("-fullscreen", True)
     # app.focus_force()
-    app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", lambda x: app._capture(quick=True))
-    app.bind("<Control-c>", lambda x: app.close_app())
+    # app.bind("<Return>", app._capture)
+    app.bind("<Control-s>", lambda : app._capture(quick=True))
+    app.bind("<Control-c>", lambda : app.close_app())
     app.mainloop()
