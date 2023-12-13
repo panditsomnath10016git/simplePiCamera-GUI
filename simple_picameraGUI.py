@@ -39,7 +39,7 @@ class App(Tk):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
 
-        # load calib data from calib.json else create initial file
+        # try loading calib data from calib.json else create initial file
         try:
             with open("calib.json", "r") as f:
                 (
@@ -148,13 +148,13 @@ class App(Tk):
         self.btn_bar_down = Button(
             self.frame_calib,
             text="↓",
-            command=lambda x: self._add_scalebar(len=self.scalebar_len - 1),
+            command=lambda x, event: self._add_scalebar(len=self.scalebar_len - 1),
             width=2,
         )
         self.btn_bar_up = Button(
             self.frame_calib,
             text="↑",
-            command=lambda x: self._add_scalebar(len=self.scalebar_len + 1),
+            command=lambda x, event: self._add_scalebar(len=self.scalebar_len + 1),
             width=2,
         )
 
