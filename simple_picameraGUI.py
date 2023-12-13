@@ -255,7 +255,7 @@ class App(Tk):
         self.camera.annotate_background = True
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
-        self._add_scalebar()
+        self._add_scalebar(len=self.scalebar_len)
 
     def _set_img_fname(self):
         self.name_dt = strftime("%Y_%m_%d-%H%M%S")
