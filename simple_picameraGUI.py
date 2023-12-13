@@ -67,7 +67,7 @@ class App(Tk):
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
         )
-        self.frame_input_hight = 2 * round(self.screen_height / 13)
+        self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
         self.canvas = Canvas(
