@@ -77,11 +77,11 @@ class App(Tk):
         self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
-        self.canvas = Canvas(
+        self.canvas = Frame( #changed canvas to frame -maybe better performance
             self.window,
             width=self.canvas_width,
             height=self.canvas_height,
-            bg="white",
+           # bg="white",
         )
         self._input_frame()
         self._calibration_frame()
@@ -148,13 +148,13 @@ class App(Tk):
         self.btn_bar_down = Button(
             self.frame_calib,
             text="↓",
-            command=lambda x, event: self._add_scalebar(len=self.scalebar_len - 1),
+            command=lambda: self._add_scalebar(len=self.scalebar_len - 1),
             width=2,
         )
         self.btn_bar_up = Button(
             self.frame_calib,
             text="↑",
-            command=lambda x, event: self._add_scalebar(len=self.scalebar_len + 1),
+            command=lambda: self._add_scalebar(len=self.scalebar_len + 1),
             width=2,
         )
 
@@ -298,9 +298,9 @@ class App(Tk):
 
 if __name__ == "__main__":
     app = App()
-    app.attributes("-fullscreen", True)
+    # app.attributes("-fullscreen", True)
     # app.focus_force()
-    app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", lambda x: app._capture(quick=True))
-    app.bind("<Control-c>", lambda x: app.close_app())
+    # app.bind("<Return>", app._capture)
+    app.bind("<Control-s>", lambda : app._capture(quick=True))
+    app.bind("<Control-c>", lambda : app.close_app())
     app.mainloop()
