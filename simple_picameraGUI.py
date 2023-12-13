@@ -122,6 +122,8 @@ class App(Tk):
         img_fname_label.grid(row=0, column=1, padx=5)
         self.ent_img_fname.grid(row=0, column=2, padx=0)
         img_format.grid(row=0, column=3, padx=5)
+        self.btn_zoom.grid(row=0, column=4, padx=5)
+        # self.zoom_label.grid(row=0, column=5, padx=5)
 
         self.btn_zoom.grid(row=0, column=4, padx=5)
         # self.zoom_label.grid(row=0, column=5, padx=5)
