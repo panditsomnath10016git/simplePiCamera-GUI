@@ -74,7 +74,7 @@ class App(Tk):
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
         )
-        self.frame_input_hight = round(self.screen_height / 13)
+        self.frame_input_hight = round(self.screen_height / 14)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
         self.canvas = Frame(  # changed canvas to frame -maybe better performance
@@ -298,7 +298,7 @@ class App(Tk):
 
 if __name__ == "__main__":
     app = App()
-    # app.attributes("-fullscreen", True)
+    app.attributes("-fullscreen", True)
     # app.focus_force()
     # app.bind("<Return>", app._capture)
     app.bind("<Control-s>", lambda: app._capture(quick=True))
