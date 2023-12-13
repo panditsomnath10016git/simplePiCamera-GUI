@@ -6,7 +6,7 @@ from tkinter.ttk import Button, Frame, Style, Spinbox
 
 # import numpy as np
 
-from picameraa import PiCamera
+from picamera import PiCamera
 
 homedir = os.path.expanduser("~")
 
