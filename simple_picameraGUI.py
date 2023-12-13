@@ -39,15 +39,25 @@ class App(Tk):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
 
-        # load calib data from calib.json
-        with open("calib.json", "r") as f:
-            (
-                self.camera.annotate_text_size,
-                self.scalebar_len,
-                self.physical_len,
-                scale_unit,
-            ) = json.load(f)
-        self.scale_unit.set(scale_unit)
+        # load calib data from calib.json else create initial file
+        try:
+            with open("calib.json", "r") as f:
+                (
+                    self.camera.annotate_text_size,
+                    self.scalebar_len,
+                    self.physical_len,
+                    scale_unit,
+                ) = json.load(f)
+            self.scale_unit.set(scale_unit)
+        except :
+            self.calib_data = (
+            self.camera.annotate_text_size,
+            self.scalebar_len,
+            self.physical_len,
+            self.scale_unit.get(),
+        )
+        with open("calib.json", "w") as f:
+            json.dump(self.calib_data, f, indent=2)
 
         self.create_frames()
 
@@ -188,8 +198,6 @@ class App(Tk):
             self.scale_unit.get(),
         )
         with open("calib.json", "w") as f:
-            # indent=2 is not needed but makes the file human-readable
-            # if the data is nested
             json.dump(self.calib_data, f, indent=2)
 
     def set_zoom(self, **kwargs):
@@ -198,7 +206,7 @@ class App(Tk):
     def _add_scalebar(self, len):
         self.scalebar_len = len
         self.camera.annotate_background = True
-        self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit}"
+        self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit.get()}"
 
     def _calibrate_scale(self):
         # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
