@@ -41,10 +41,13 @@ class App(Tk):
 
         # load calib data from calib.json
         with open("calib.json", "r") as f:
-            (self.camera.annotate_text_size, self.scalebar_len, self.physical_len) = json.load(f)
-
-        
-            
+            (
+                self.camera.annotate_text_size,
+                self.scalebar_len,
+                self.physical_len,
+                scale_unit,
+            ) = json.load(f)
+        self.scale_unit.set(scale_unit)
 
         self.create_frames()
 
@@ -53,7 +56,7 @@ class App(Tk):
         # self.bind("<Escape>", self._hide_input_window)
         self._set_camera_preview_size()
         # self._add_overlay()
-        self._add_scalebar()
+        self._add_scalebar(len=self.scalebar_len)
 
     def create_frames(self):
         self.window = Frame(self.master)
@@ -148,8 +151,9 @@ class App(Tk):
             width=2,
         )
 
-        label_physical_len = Label(self.frame_calib, text="Physical length :")
-        self.ent_actual_len = Entry(self.frame_calib, width=10)
+        label_measured_len = Label(self.frame_calib, text="Measured length :")
+        self.ent_measured_len = Entry(self.frame_calib, width=10)
+        self.ent_measured_len.insert(0, self.physical_len)
 
         um_scale = Radiobutton(self.frame_calib, text="um", variable=self.scale_unit, value="um")
         mm_scale = Radiobutton(self.frame_calib, text="mm", variable=self.scale_unit, value="mm")
@@ -170,8 +174,8 @@ class App(Tk):
         bar_len_label.grid(row=0, column=0)
         self.btn_bar_down.grid(row=0, column=1, padx=5)
         self.btn_bar_up.grid(row=0, column=2, padx=5)
-        label_physical_len.grid(row=0, column=3, padx=5)
-        self.ent_actual_len.grid(row=0, column=4, padx=0)
+        label_measured_len.grid(row=0, column=3, padx=5)
+        self.ent_measured_len.grid(row=0, column=4, padx=0)
         um_scale.grid(row=0, column=5, padx=2)
         mm_scale.grid(row=0, column=6, padx=2)
         self.btn_apply.grid(row=0, column=7, padx=5)
@@ -179,12 +183,17 @@ class App(Tk):
 
     def _recalculate_scale(self):
         # calculate scale length(with min length 10) to a rounded physical value
-        self.calib_data = (self.camera.annotate_text_size, self.scalebar_len, self.physical_len)
+        self.physical_len = float(self.ent_measured_len.get())
+        self.calib_data = (
+            self.camera.annotate_text_size,
+            self.scalebar_len,
+            self.physical_len,
+            self.scale_unit.get(),
+        )
         with open("calib.json", "w") as f:
             # indent=2 is not needed but makes the file human-readable
             # if the data is nested
             json.dump(self.calib_data, f, indent=2)
-        pass
 
     def set_zoom(self, **kwargs):
         pass
