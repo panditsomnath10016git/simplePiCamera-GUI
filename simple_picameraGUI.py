@@ -49,12 +49,12 @@ class App(Tk):
                     scale_unit,
                 ) = json.load(f)
             self.scale_unit.set(scale_unit)
-        except :
+        except:
             self.calib_data = (
-            self.camera.annotate_text_size,
-            self.scalebar_len,
-            self.physical_len,
-            self.scale_unit.get(),
+                self.camera.annotate_text_size,
+                self.scalebar_len,
+                self.physical_len,
+                self.scale_unit.get(),
             )
             with open("calib.json", "w") as f:
                 json.dump(self.calib_data, f, indent=2)
@@ -188,7 +188,7 @@ class App(Tk):
         self.btn_apply.grid(row=0, column=7, padx=5)
         self.btn_OK.grid(row=0, column=8, padx=5)
 
-    def _recalculate_scale(self):
+    def _recalculate_scale(self, *event):
         # calculate scale length(with min length 10) to a rounded physical value
         self.physical_len = float(self.ent_measured_len.get())
         self.calib_data = (
@@ -203,7 +203,7 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len):
+    def _add_scalebar(self, len, *event):
         self.scalebar_len = len
         self.camera.annotate_background = True
         self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit.get()}"
