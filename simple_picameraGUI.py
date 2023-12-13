@@ -1,8 +1,10 @@
 import os
+import json
 from time import sleep, strftime
 from tkinter import END, Canvas, Entry, Label, Tk, StringVar, Radiobutton
 from tkinter.ttk import Button, Frame, Style, Spinbox
-import numpy as np
+
+# import numpy as np
 
 from picamera import PiCamera
 
@@ -12,6 +14,7 @@ homedir = os.path.expanduser("~")
 class App(Tk):
     def __init__(self, **kw) -> None:
         super().__init__(**kw)
+
         theme = Style()
         self.focus_force()
 
@@ -22,17 +25,32 @@ class App(Tk):
         self.title("sPiCameraGUI")
 
         self.lens_zoom = "10X"
-        self.scale_unit = StringVar("um")
+        self.scale_unit = StringVar(self, "um")
+        self.scalebar_len = 20
         self.physical_len = 100
 
         self.resolution = (1280, 720)
         self.framerate = 30
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
+        self.camera.annotate_text_size = 20
 
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
+
+        # TODO load calib data if available
+        """self.calib_data = (self.camera.annotate_text_size, self.scalebar_len, self.physical_len)
+
+        with open("calib.json", "w") as f:
+            # indent=2 is not needed but makes the file human-readable
+            # if the data is nested
+            json.dump(self.calib_data, f, indent=2)
+        with open("calib.json", "r") as f:
+            # indent=2 is not needed but makes the file human-readable
+            # if the data is nested
+            (a, b, c) = json.load(f)
+            print(a,b,c)"""
 
         self.create_frames()
 
@@ -60,28 +78,19 @@ class App(Tk):
         )
         self._input_frame()
         self._calibration_frame()
-        self.canvas.grid(
-            column=0, row=0, sticky="nsew"
-        )  # pack(anchor="nw", expand=True)
+        self.canvas.grid(column=0, row=0, sticky="nsew")  # pack(anchor="nw", expand=True)
         self.frame_input.grid(column=0, row=1, sticky="nsew")
         self.frame_calib.grid(column=0, row=2, sticky="nsew")
-        self.window.pack(
-            fill="both", expand=True
-        )  # grid(column=0, row=0, sticky="nsew")
+        self.window.pack(fill="both", expand=True)  # grid(column=0, row=0, sticky="nsew")
 
     def _input_frame(self):
         self.frame_input = Frame(self.window)
-        self.btn_capture = Button(
-            self.frame_input, text="Capture", command=self._capture, width=7
-        )
+        self.btn_capture = Button(self.frame_input, text="Capture", command=self._capture, width=7)
         img_fname_label = Label(
             self.frame_input,
             text="Save as :",
         )
-        img_format = Label(
-            self.frame_input,
-            text=f".{self.image_format}",
-        )
+        img_format = Label(self.frame_input, text=f".{self.image_format}")
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
 
@@ -89,9 +98,7 @@ class App(Tk):
         """self.btn_cancel = Button(
             self.frame_input, text="Cancel", command=self._hide_input_window
         )"""
-        self.btn_close = Button(
-            self.frame_input, text="Close", width=5, command=self.close_app
-        )
+        self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
         self.btn_zoom = Spinbox(
             self.frame_input,
             values=("10X", "20X", "50X", "100X"),
@@ -101,6 +108,12 @@ class App(Tk):
             state="readonly",
         )
         # self.zoom_label = Label(self.frame_input, text='X')
+        self.btn_calib = Button(
+            self.frame_input,
+            text="Calib",
+            width=5,
+            command=self._show_calibration_window,
+        )
         self.btn_capture.grid(row=0, column=0)
 
         img_fname_label.grid(row=0, column=1, padx=5)
@@ -109,10 +122,17 @@ class App(Tk):
         self.btn_zoom.grid(row=0, column=4, padx=5)
         # self.zoom_label.grid(row=0, column=5, padx=5)
 
+        self.btn_zoom.grid(row=0, column=4, padx=5)
+        # self.zoom_label.grid(row=0, column=5, padx=5)
+
         # self.btn_cancel.grid(row=0, column=6, padx=10)
-        self.btn_close.grid(row=0, column=7, padx=30, sticky="W")
+        self.btn_calib.grid(row=0, column=5, padx=10)
+        self.btn_close.grid(row=0, column=6, padx=30, sticky="W")
 
     def _calibration_frame(self):
+        # will be visible in screen when calib button pressed in input frame by resizing the canvas
+        # it will also disable the input frame to prevent mistouch in screen.
+        # OK button will again sent this out of screen and enable input frame
         self.frame_calib = Frame(self.window)
         bar_len_label = Label(
             self.frame_calib,
@@ -131,21 +151,23 @@ class App(Tk):
             width=2,
         )
 
-        label_physical_len = Label(
-            self.frame_calib,
-            text="Physical length :",
-        )
+        label_physical_len = Label(self.frame_calib, text="Physical length :")
         self.ent_actual_len = Entry(self.frame_calib, width=10)
 
-        um_scale = Radiobutton(
-            self.frame_calib, text="um", variable=self.scale_unit, value="um"
-        )
-        mm_scale = Radiobutton(
-            self.frame_calib, text="mm", variable=self.scale_unit, value="mm"
-        )
+        um_scale = Radiobutton(self.frame_calib, text="um", variable=self.scale_unit, value="um")
+        mm_scale = Radiobutton(self.frame_calib, text="mm", variable=self.scale_unit, value="mm")
 
         self.btn_apply = Button(
-            self.frame_input, text="apply", width=5, command=self._recalculate_scale
+            self.frame_calib,
+            text="apply",
+            width=5,
+            command=self._recalculate_scale,
+        )
+        self.btn_OK = Button(
+            self.frame_calib,
+            text="OK",
+            width=4,
+            command=self._show_input_window,
         )
 
         bar_len_label.grid(row=0, column=0)
@@ -156,6 +178,7 @@ class App(Tk):
         um_scale.grid(row=0, column=5, padx=2)
         mm_scale.grid(row=0, column=6, padx=2)
         self.btn_apply.grid(row=0, column=7, padx=5)
+        self.btn_OK.grid(row=0, column=8, padx=5)
 
     def _recalculate_scale(self):
         # calculate scale length(with min length 10) to a rounded physical value
@@ -164,12 +187,10 @@ class App(Tk):
     def set_zoom(self, **kwargs):
         pass
 
-    def _add_scalebar(self, len=20):
-        self.scalebar_len = len
+    def _add_scalebar(self):
         self.camera.annotate_background = True
-        self.camera.annotate_text_size = 20
         self.camera.annotate_text = (
-            "_" * len + f"\n{self.physical_len} {self.scale_unit}"
+            "_" * self.scalebar_len + f"\n{self.physical_len} {self.scale_unit}"
         )
 
     def _calibrate_scale(self):
@@ -209,7 +230,7 @@ class App(Tk):
         if quick:
             self._set_img_fname()
 
-        # if same named image present in directory change the filename.
+        # TODO if same named image present in directory change the filename.
         self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
@@ -217,7 +238,6 @@ class App(Tk):
 
     def _show_img_saved(self):
         self.camera.annotate_background = True
-        self.camera.annotate_text_size = 20
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
         self._add_scalebar()
@@ -231,17 +251,29 @@ class App(Tk):
 
     def _show_input_window(self, *event):
         self.canvas.config(height=(self.screen_height - self.frame_input_hight))
-        self._set_camera_preview_size(fs=False)
+        # self._set_camera_preview_size(fs=False)
+        for child in self.frame_input.winfo_children():
+            try:
+                if child.widgetName != "frame":  # frame has no state, so skip
+                    child.configure(state="normal")
+            except Exception as e:
+                print(e)
 
     def _show_calibration_window(self, *event):
         self.canvas.config(height=(self.screen_height - 2 * self.frame_input_hight))
-        self._set_camera_preview_size(fs=False)
+        # self._set_camera_preview_size(fs=False)
+        for child in self.frame_input.winfo_children():
+            try:
+                if child.widgetName != "frame":  # frame has no state, so skip
+                    child.configure(state="disabled")
+            except Exception as e:
+                print(e)
         self.bind("<Escape>", self._show_input_window)
 
-    def _hide_input_window(self, *event):
+    """def _hide_input_window(self, *event):
         self.canvas.config(height=(self.screen_height))
         self._set_camera_preview_size(fs=True)
-        self.bind("<Escape>", self._show_input_window)
+        self.bind("<Escape>", self._show_input_window)"""
 
     def close_app(self):
         self.camera.stop_preview()
