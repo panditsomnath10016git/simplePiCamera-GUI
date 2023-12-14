@@ -24,7 +24,7 @@ class App(Tk):
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
 
-        self.lens_zoom = StringVar(self, "10X")
+        self.lens_zoom = StringVar(self, "5X")
         self.scale_unit = StringVar(self, "um")
         self.scalebar_len = 20
         self.physical_len = DoubleVar(self, 100)
@@ -112,11 +112,12 @@ class App(Tk):
         self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
         self.btn_zoom = Spinbox(
             self.frame_input,
-            values=("10X", "20X", "50X", "100X"),
+            values=("5X", "10X", "20X", "50X", "100X"),
             textvariable=self.lens_zoom,
             width=4,
             command=self.set_zoom(),
             state="readonly",
+            command=self._update_scalebar,
         )
         # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_calib = Button(
@@ -201,18 +202,23 @@ class App(Tk):
         )
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
-    
+
     def _update_scalebar(self):
-        # calculate scale length(with min length 10) to a rounded physical value
-        phys_len_values = [1, 5, 10, 20, 50, 100, 200, 500]
-        min_bar_len = 4
-        max_bar_len = 50
-        # TODO calcuate bars per length  for the zoom level and update the scalebar 
-        # according to the zoom set
+        # calculate scale length(with min and max length) to a rounded physical value
+        phy_len_values = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
         current_zoom = int(self.lens_zoom.get()[:-1])
-        self.bars_per_zoom_len = (
-            self.scalebar_len * current_zoom / self.physical_len.get()
+        scale_unit_um = 1
+        if self.scale_unit.get() == "mm":
+            scale_unit_um = 1000  # 1mm = 1000um
+
+        # calcuate bars per length  for the zoom level and update the scalebar
+        # according to the zoom set
+        min_bar_len = 10
+        max_bar_len = 100
+        self.bars_per_phy_len = self.scalebar_len / (
+            self.physical_len.get() * scale_unit_um * current_zoom
         )
+        bars_len_per_phy_vals = [self.physical_len.get()]
 
     def set_zoom(self, **kwargs):
         pass
@@ -220,7 +226,9 @@ class App(Tk):
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
         self.camera.annotate_background = True
-        self.camera.annotate_text = "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
+        self.camera.annotate_text = (
+            "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
+        )
 
     def _calibrate_scale(self):
         # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
@@ -315,7 +323,7 @@ if __name__ == "__main__":
     app.attributes("-fullscreen", True)
     # app.focus_force()
     # app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", lambda: app._capture(quick=True))
-    app.bind("<Control-c>", lambda: app.close_app())
+    app.bind("<Control-s>", lambda x: app._capture(quick=True))
+    app.bind("<Control-c>", lambda x: app.close_app())
     app.camera.start_preview()
     app.mainloop()
