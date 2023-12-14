@@ -286,7 +286,7 @@ class App(Tk):
 
         # TODO if same named image present in directory change the filename.
         # scalebar length added to filename
-        self.saved_img_fname = f"{self.ent_img_fname.get()}{round(self.physical_len.get(),2)}.jpeg"
+        self.saved_img_fname = f"{self.ent_img_fname.get()}_{round(self.physical_len.get(),2)}_{self.scale_unit.get()}.jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
         self._show_img_saved()
@@ -300,7 +300,7 @@ class App(Tk):
         self._add_scalebar(len=self.scalebar_len)
 
     def _set_img_fname(self):
-        self.name_dt = strftime("%Y_%m_%d-%H%M%S")
+        self.name_dt = strftime("%Y%m%d%H%M%S")
         self.image_fname = "piCapture" + self.name_dt
         self.ent_img_fname.delete(0, END)
         self.ent_img_fname.insert(0, self.image_fname)
