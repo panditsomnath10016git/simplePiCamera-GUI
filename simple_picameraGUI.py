@@ -61,6 +61,7 @@ class App(Tk):
             with open("calib.json", "w") as f:
                 json.dump(self.calib_data, f, indent=2)
 
+        scale_unit_um = 1
         if self.scale_unit.get() == "mm":
             scale_unit_um = 1000  # 1mm = 1000um
         current_zoom = int(self.lens_zoom.get()[:-1])
@@ -205,7 +206,7 @@ class App(Tk):
         )
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
-
+        scale_unit_um = 1
         if self.scale_unit.get() == "mm":
             scale_unit_um = 1000  # 1mm = 1000um
         current_zoom = int(self.lens_zoom.get()[:-1])
@@ -225,6 +226,7 @@ class App(Tk):
         self._add_scalebar(fixed_scalebar_len)
 
     def _update_scalebar(self):
+        # TODO dynamic scalebar
         # calculate scale length(with min and max length) to a rounded physical value
         phy_len_values = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
         current_zoom = int(self.lens_zoom.get()[:-1])
@@ -239,7 +241,6 @@ class App(Tk):
         bar_len_per_phy_vals = [
             self.bars_per_um_per_unit_zoom * phy_len * current_zoom for phy_len in phy_len_values
         ]
-        print(bar_len_per_phy_vals)
 
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
