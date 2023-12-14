@@ -206,6 +206,7 @@ class App(Tk):
         )
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
+
         scale_unit_um = 1
         if self.scale_unit.get() == "mm":
             scale_unit_um = 1000  # 1mm = 1000um
@@ -284,15 +285,18 @@ class App(Tk):
             self._set_img_fname()
 
         # TODO if same named image present in directory change the filename.
-        self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
+        # scalebar length added to filename
+        self.saved_img_fname = f"{self.ent_img_fname.get()}{round(self.physical_len.get(),2)}.jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
         self._show_img_saved()
 
     def _show_img_saved(self):
         self.camera.annotate_background = True
+        self.camera.annotate_text_size = 20
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
+        self.camera.annotate_text_size = 6
         self._add_scalebar(len=self.scalebar_len)
 
     def _set_img_fname(self):
