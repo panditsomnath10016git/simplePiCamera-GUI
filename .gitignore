@@ -133,3 +133,4 @@ dmypy.json
 
 #PiCamera-GUI
 /capture
+calib.json

@@ -1,7 +1,7 @@
 import os
 import json
 from time import sleep, strftime
-from tkinter import END, Canvas, Entry, Label, Tk, StringVar, Radiobutton
+from tkinter import END, Canvas, Entry, Label, Tk, StringVar, DoubleVar, Radiobutton
 from tkinter.ttk import Button, Frame, Style, Spinbox
 
 # import numpy as np
@@ -24,48 +24,44 @@ class App(Tk):
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
 
-        self.lens_zoom = "10X"
+        self.lens_zoom = StringVar(self, "5X")
         self.scale_unit = StringVar(self, "um")
-        self.scalebar_len = 20
-        self.physical_len = 100
+        self.fixed_scalebar_len = 50
+        self.scalebar_len = self.fixed_scalebar_len
+        self.physical_len = DoubleVar(self, 100.0)
+        self.scale_bar_font_size = 10
 
         self.resolution = (1280, 720)
         self.framerate = 30
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
-        self.camera.annotate_text_size = 20
+        self.camera.annotate_text_size = self.scale_bar_font_size
 
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
 
-        # try loading calib data from calib.json else create initial file
-        try:
-            with open("calib.json", "r") as f:
-                (
-                    self.camera.annotate_text_size,
-                    self.scalebar_len,
-                    self.physical_len,
-                    scale_unit,
-                ) = json.load(f)
-            self.scale_unit.set(scale_unit)
-        except:
-            self.calib_data = (
-                self.camera.annotate_text_size,
-                self.scalebar_len,
-                self.physical_len,
-                self.scale_unit.get(),
-            )
-            with open("calib.json", "w") as f:
-                json.dump(self.calib_data, f, indent=2)
-
         self.create_frames()
 
         # TODO if camera not found show error dialogue box.
+
+        # default bars_per_um_per_unit_zoom calculate for initialization
+        scale_unit_um = 1
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        self.bars_per_um_per_unit_zoom = self.scalebar_len / (
+            self.physical_len.get() * scale_unit_um * current_zoom
+        )  # physical len in um
+        # try loading calib data from calib.json else create initial file
+        try:
+            with open("calib.json", "r") as f:
+                self.bars_per_um_per_unit_zoom = json.load(f)
+        except:
+            self.calib_data = self.bars_per_um_per_unit_zoom
+            with open("calib.json", "w") as f:
+                json.dump(self.calib_data, f, indent=2)
+        self._update_fixed_scalebar()
+
         # self.bind("<Escape>", self._hide_input_window)
-        self._set_camera_preview_size()
-        # self._add_overlay()
-        self._add_scalebar(len=self.scalebar_len)
 
     def create_frames(self):
         self.window = Frame(self.master)
@@ -110,10 +106,10 @@ class App(Tk):
         self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
         self.btn_zoom = Spinbox(
             self.frame_input,
-            values=("10X", "20X", "50X", "100X"),
+            values=("5X", "10X", "20X", "50X", "100X"),
             textvariable=self.lens_zoom,
             width=4,
-            command=self.set_zoom(),
+            command=self._update_fixed_scalebar,
             state="readonly",
         )
         # self.zoom_label = Label(self.frame_input, text='X')
@@ -161,8 +157,7 @@ class App(Tk):
         )
 
         label_measured_len = Label(self.frame_calib, text="Measured length :")
-        self.ent_measured_len = Entry(self.frame_calib, width=10)
-        self.ent_measured_len.insert(0, self.physical_len)
+        self.ent_measured_len = Entry(self.frame_calib, textvariable=self.physical_len, width=10)
 
         um_scale = Radiobutton(self.frame_calib, text="um", variable=self.scale_unit, value="um")
         mm_scale = Radiobutton(self.frame_calib, text="mm", variable=self.scale_unit, value="mm")
@@ -172,6 +167,12 @@ class App(Tk):
             text="apply",
             width=5,
             command=self._recalculate_scale,
+        )
+        self.btn_cancel = Button(
+            self.frame_calib,
+            text="cancel",
+            width=6,
+            command=self._update_fixed_scalebar,
         )
         self.btn_OK = Button(
             self.frame_calib,
@@ -188,32 +189,57 @@ class App(Tk):
         um_scale.grid(row=0, column=5, padx=2)
         mm_scale.grid(row=0, column=6, padx=2)
         self.btn_apply.grid(row=0, column=7, padx=5)
-        self.btn_OK.grid(row=0, column=8, padx=5)
+        self.btn_cancel.grid(row=0, column=8, padx=5)
+        self.btn_OK.grid(row=0, column=9, padx=5)
 
     def _recalculate_scale(self, *event):
-        # calculate scale length(with min length 10) to a rounded physical value
-        self.physical_len = float(self.ent_measured_len.get())
-        self.calib_data = (
-            self.camera.annotate_text_size,
-            self.scalebar_len,
-            self.physical_len,
-            self.scale_unit.get(),
-        )
+        self.calib_data = self.bars_per_um_per_unit_zoom
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
 
-    def set_zoom(self, **kwargs):
-        pass
+        scale_unit_um = 1
+        if self.scale_unit.get() == "mm":
+            scale_unit_um = 1000  # 1mm = 1000um
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        self.bars_per_um_per_unit_zoom = self.scalebar_len / (
+            self.physical_len.get() * scale_unit_um * current_zoom
+        )  # physical len in um
+        self._update_fixed_scalebar()
+
+    def _update_fixed_scalebar(self):
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        phy_len = self.fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom)
+        if phy_len > 500:
+            phy_len /= 1000
+            self.scale_unit.set("mm")
+        else:
+            self.scale_unit.set("um")
+        self.physical_len.set(phy_len)
+        self._add_scalebar(self.fixed_scalebar_len)
+
+    def _update_scalebar(self):
+        # TODO dynamic scalebar
+        # calculate scale length(with min and max length) to a rounded physical value
+        phy_len_values = [1, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        scale_unit_um = 1
+        if self.scale_unit.get() == "mm":
+            scale_unit_um = 1000  # 1mm = 1000um
+
+        # calcuate bars per length  for the zoom level and update the scalebar
+        # according to the zoom set
+        min_bar_len = 10
+        max_bar_len = 100
+        bar_len_per_phy_vals = [
+            self.bars_per_um_per_unit_zoom * phy_len * current_zoom for phy_len in phy_len_values
+        ]
 
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
         self.camera.annotate_background = True
-        self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit.get()}"
-
-    def _calibrate_scale(self):
-        # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
-        # get standard length to show as scalebar.
-        pass
+        self.camera.annotate_text = (
+            "_" * len + f"\n{round(self.physical_len.get(),3)} {self.scale_unit.get()}"
+        )
 
     """def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
         # Create an array representing a image. The shape of
@@ -248,19 +274,22 @@ class App(Tk):
             self._set_img_fname()
 
         # TODO if same named image present in directory change the filename.
-        self.saved_img_fname = self.ent_img_fname.get() + ".jpeg"
+        # scalebar length added to filename
+        self.saved_img_fname = f"{self.ent_img_fname.get()}_{round(self.physical_len.get(),3)}_{self.scale_unit.get()}.jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
         self._show_img_saved()
 
     def _show_img_saved(self):
         self.camera.annotate_background = True
+        self.camera.annotate_text_size = 20
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
-        self._add_scalebar(len=self.scalebar_len)
+        self.camera.annotate_text_size = self.scale_bar_font_size
+        self._update_fixed_scalebar()
 
     def _set_img_fname(self):
-        self.name_dt = strftime("%Y_%m_%d-%H%M%S")
+        self.name_dt = strftime("%Y%m%d%H%M%S")
         self.image_fname = "piCapture" + self.name_dt
         self.ent_img_fname.delete(0, END)
         self.ent_img_fname.insert(0, self.image_fname)
@@ -285,12 +314,7 @@ class App(Tk):
                     child.configure(state="disabled")
             except Exception as e:
                 print(e)
-        self.bind("<Escape>", self._show_input_window)
-
-    """def _hide_input_window(self, *event):
-        self.canvas.config(height=(self.screen_height))
-        self._set_camera_preview_size(fs=True)
-        self.bind("<Escape>", self._show_input_window)"""
+        # self.bind("<Escape>", self._show_input_window)
 
     def close_app(self):
         self.camera.stop_preview()
@@ -301,9 +325,11 @@ class App(Tk):
 if __name__ == "__main__":
     app = App()
     # app.attributes("-fullscreen", True)
+    app.camera.start_preview()
+    app._set_camera_preview_size()
+    # self._add_overlay()
     # app.focus_force()
     # app.bind("<Return>", app._capture)
-    app.bind("<Control-s>", lambda: app._capture(quick=True))
-    app.bind("<Control-c>", lambda: app.close_app())
-    app.camera.start_preview()
+    app.bind("<Control-s>", lambda x: app._capture(quick=True))
+    app.bind("<Control-c>", lambda x: app.close_app())
     app.mainloop()
