@@ -32,7 +32,7 @@ class App(Tk):
         self.resolution = (1280, 720)
         self.framerate = 30
         self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
-        self.camera.annotate_text_size = 20
+        self.camera.annotate_text_size = 6
 
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
         if not os.path.exists(self.save_dir):
@@ -43,7 +43,6 @@ class App(Tk):
         try:
             with open("calib.json", "r") as f:
                 (
-                    self.camera.annotate_text_size,
                     self.scalebar_len,
                     physical_len,
                     scale_unit,
@@ -54,7 +53,6 @@ class App(Tk):
             self.physical_len.set(physical_len)
         except:
             self.calib_data = (
-                self.camera.annotate_text_size,
                 self.scalebar_len,
                 self.physical_len.get(),
                 self.scale_unit.get(),
@@ -62,6 +60,13 @@ class App(Tk):
             )
             with open("calib.json", "w") as f:
                 json.dump(self.calib_data, f, indent=2)
+
+        if self.scale_unit.get() == "mm":
+            scale_unit_um = 1000  # 1mm = 1000um
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        self.bars_per_um_per_unit_zoom = self.scalebar_len / (
+            self.physical_len.get() * scale_unit_um * current_zoom
+        )  # physical len in um
 
         self.create_frames()
 
@@ -117,7 +122,7 @@ class App(Tk):
             width=4,
             command=self.set_zoom(),
             state="readonly",
-            command=self._update_scalebar,
+            command=self._update_fixed_scalebar,
         )
         # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_calib = Button(
@@ -194,7 +199,6 @@ class App(Tk):
 
     def _recalculate_scale(self, *event):
         self.calib_data = (
-            self.camera.annotate_text_size,
             self.scalebar_len,
             self.physical_len.get(),
             self.scale_unit.get(),
@@ -202,6 +206,24 @@ class App(Tk):
         )
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
+
+        if self.scale_unit.get() == "mm":
+            scale_unit_um = 1000  # 1mm = 1000um
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        self.bars_per_um_per_unit_zoom = self.scalebar_len / (
+            self.physical_len.get() * scale_unit_um * current_zoom
+        )  # physical len in um
+        self._update_fixed_scalebar()
+
+    def _update_fixed_scalebar(self):
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        fixed_scalebar_len = 100
+        phy_len = fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom)
+        if phy_len > 500:
+            phy_len /= 1000
+            self.scale_unit.set("mm")
+        self.physical_len.set(fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom))
+        self._add_scalebar(fixed_scalebar_len)
 
     def _update_scalebar(self):
         # calculate scale length(with min and max length) to a rounded physical value
@@ -215,13 +237,10 @@ class App(Tk):
         # according to the zoom set
         min_bar_len = 10
         max_bar_len = 100
-        self.bars_per_phy_len = self.scalebar_len / (
-            self.physical_len.get() * scale_unit_um * current_zoom
-        )
-        bars_len_per_phy_vals = [self.physical_len.get()]
-
-    def set_zoom(self, **kwargs):
-        pass
+        bar_len_per_phy_vals = [
+            self.bars_per_um_per_unit_zoom * phy_len * current_zoom for phy_len in phy_len_values
+        ]
+        print(bar_len_per_phy_vals)
 
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
@@ -229,11 +248,6 @@ class App(Tk):
         self.camera.annotate_text = (
             "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
         )
-
-    def _calibrate_scale(self):
-        # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
-        # get standard length to show as scalebar.
-        pass
 
     """def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
         # Create an array representing a image. The shape of
@@ -306,11 +320,6 @@ class App(Tk):
             except Exception as e:
                 print(e)
         self.bind("<Escape>", self._show_input_window)
-
-    """def _hide_input_window(self, *event):
-        self.canvas.config(height=(self.screen_height))
-        self._set_camera_preview_size(fs=True)
-        self.bind("<Escape>", self._show_input_window)"""
 
     def close_app(self):
         self.camera.stop_preview()
