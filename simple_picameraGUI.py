@@ -1,7 +1,7 @@
 import os
 import json
 from time import sleep, strftime
-from tkinter import END, Canvas, Entry, Label, Tk, StringVar, Radiobutton
+from tkinter import END, Canvas, Entry, Label, Tk, StringVar, DoubleVar, Radiobutton
 from tkinter.ttk import Button, Frame, Style, Spinbox
 
 # import numpy as np
@@ -27,7 +27,7 @@ class App(Tk):
         self.lens_zoom = StringVar(self, "10X")
         self.scale_unit = StringVar(self, "um")
         self.scalebar_len = 20
-        self.physical_len = 100
+        self.physical_len = DoubleVar(self, 100)
 
         self.resolution = (1280, 720)
         self.framerate = 30
@@ -45,17 +45,18 @@ class App(Tk):
                 (
                     self.camera.annotate_text_size,
                     self.scalebar_len,
-                    self.physical_len,
+                    physical_len,
                     scale_unit,
                     lens_zoom,
                 ) = json.load(f)
             self.scale_unit.set(scale_unit)
             self.lens_zoom.set(lens_zoom)
+            self.physical_len.set(physical_len)
         except:
             self.calib_data = (
                 self.camera.annotate_text_size,
                 self.scalebar_len,
-                self.physical_len,
+                self.physical_len.get(),
                 self.scale_unit.get(),
                 self.lens_zoom.get(),
             )
@@ -162,8 +163,7 @@ class App(Tk):
         )
 
         label_measured_len = Label(self.frame_calib, text="Measured length :")
-        self.ent_measured_len = Entry(self.frame_calib, width=10)
-        self.ent_measured_len.insert(0, self.physical_len)
+        self.ent_measured_len = Entry(self.frame_calib, textvariable=self.physical_len, width=10)
 
         um_scale = Radiobutton(self.frame_calib, text="um", variable=self.scale_unit, value="um")
         mm_scale = Radiobutton(self.frame_calib, text="mm", variable=self.scale_unit, value="mm")
@@ -192,19 +192,27 @@ class App(Tk):
         self.btn_OK.grid(row=0, column=8, padx=5)
 
     def _recalculate_scale(self, *event):
-        # calculate scale length(with min length 10) to a rounded physical value
-        self.physical_len = float(self.ent_measured_len.get())
         self.calib_data = (
             self.camera.annotate_text_size,
             self.scalebar_len,
-            self.physical_len,
+            self.physical_len.get(),
             self.scale_unit.get(),
             self.lens_zoom.get(),
         )
         with open("calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
-        # TODO calcuate bars per length  for the zoom level and update the scalebar according to the zoom set
-        self.bars_per_len = self.scalebar_len / self.physical_len
+    
+    def _update_scalebar(self):
+        # calculate scale length(with min length 10) to a rounded physical value
+        phys_len_values = [1, 5, 10, 20, 50, 100, 200, 500]
+        min_bar_len = 4
+        max_bar_len = 50
+        # TODO calcuate bars per length  for the zoom level and update the scalebar 
+        # according to the zoom set
+        current_zoom = int(self.lens_zoom.get()[:-1])
+        self.bars_per_zoom_len = (
+            self.scalebar_len * current_zoom / self.physical_len.get()
+        )
 
     def set_zoom(self, **kwargs):
         pass
@@ -212,7 +220,7 @@ class App(Tk):
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
         self.camera.annotate_background = True
-        self.camera.annotate_text = "_" * len + f"\n{self.physical_len} {self.scale_unit.get()}"
+        self.camera.annotate_text = "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
 
     def _calibrate_scale(self):
         # TODO set zoom level , increase the scalebar, set physical length. calculate length per '_'
