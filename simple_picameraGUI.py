@@ -217,12 +217,14 @@ class App(Tk):
 
     def _update_fixed_scalebar(self):
         current_zoom = int(self.lens_zoom.get()[:-1])
-        fixed_scalebar_len = 100
+        fixed_scalebar_len = 50
         phy_len = fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom)
         if phy_len > 500:
             phy_len /= 1000
             self.scale_unit.set("mm")
-        self.physical_len.set(fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom))
+        else:
+            self.scale_unit.set("um")
+        self.physical_len.set(phy_len)
         self._add_scalebar(fixed_scalebar_len)
 
     def _update_scalebar(self):
