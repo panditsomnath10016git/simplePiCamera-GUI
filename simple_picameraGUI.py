@@ -44,8 +44,6 @@ class App(Tk):
         self.create_frames()
 
         # TODO if camera not found show error dialogue box.
-        self._set_camera_preview_size()
-        # self._add_overlay()
 
         # default bars_per_um_per_unit_zoom calculate for initialization
         scale_unit_um = 1
@@ -237,7 +235,7 @@ class App(Tk):
         self.scalebar_len = len
         self.camera.annotate_background = True
         self.camera.annotate_text = (
-            "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
+            "_" * len + f"\n{round(self.physical_len.get(),3)} {self.scale_unit.get()}"
         )
 
     """def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
@@ -274,7 +272,7 @@ class App(Tk):
 
         # TODO if same named image present in directory change the filename.
         # scalebar length added to filename
-        self.saved_img_fname = f"{self.ent_img_fname.get()}_{round(self.physical_len.get(),2)}_{self.scale_unit.get()}.jpeg"
+        self.saved_img_fname = f"{self.ent_img_fname.get()}_{round(self.physical_len.get(),3)}_{self.scale_unit.get()}.jpeg"
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
         self._show_img_saved()
@@ -285,7 +283,7 @@ class App(Tk):
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
         self.camera.annotate_text_size = self.scale_bar_font_size
-        self._add_scalebar(len=self.scalebar_len)
+        self._update_fixed_scalebar()
 
     def _set_img_fname(self):
         self.name_dt = strftime("%Y%m%d%H%M%S")
@@ -313,7 +311,7 @@ class App(Tk):
                     child.configure(state="disabled")
             except Exception as e:
                 print(e)
-        self.bind("<Escape>", self._show_input_window)
+        # self.bind("<Escape>", self._show_input_window)
 
     def close_app(self):
         self.camera.stop_preview()
@@ -324,9 +322,11 @@ class App(Tk):
 if __name__ == "__main__":
     app = App()
     app.attributes("-fullscreen", True)
+    app.camera.start_preview()
+    app._set_camera_preview_size()
+    # self._add_overlay()
     # app.focus_force()
     # app.bind("<Return>", app._capture)
     app.bind("<Control-s>", lambda x: app._capture(quick=True))
     app.bind("<Control-c>", lambda x: app.close_app())
-    app.camera.start_preview()
     app.mainloop()
