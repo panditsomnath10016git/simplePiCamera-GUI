@@ -120,9 +120,8 @@ class App(Tk):
             values=("5X", "10X", "20X", "50X", "100X"),
             textvariable=self.lens_zoom,
             width=4,
-            command=self.set_zoom(),
-            state="readonly",
             command=self._update_fixed_scalebar,
+            state="readonly",
         )
         # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_calib = Button(
