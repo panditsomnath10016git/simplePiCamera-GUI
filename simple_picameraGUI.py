@@ -38,9 +38,9 @@ class App(Tk):
 
         self.resolution = (1280, 720)
         self.framerate = 30
-        self._camera_init()
 
         self.create_frames()
+        self._camera_init()
         self._set_camera_preview_size()
 
         # default bars_per_um_per_unit_zoom calculate for initialization
@@ -69,9 +69,10 @@ class App(Tk):
                 break
             except Exception as e:
                 if not messagebox.askretrycancel(
-                    title="Camera Check", message="Camera not connected <!>"
+                    title="Camera Check", message="Camera not connected"
                 ):
-                    self.destroy()
+                    self.quit()
+                    exit()
 
     def create_frames(self):
         self.window = Frame(self.master)
