@@ -9,9 +9,9 @@ An effort to make an simple picamera application to take pictures and videos wit
     - scalebar introduced in the preview which can be calibrated visually.
     - Error message if camera not found during initalization.
 
-## Keyboard shortcuts
+### Keyboard shortcuts
     - <Control+S> to quick-save instantly with default timestamped filename.
     - <Control+C> closes the application.
 
-## Calibration of scale for zoom lens (targeted microscope) usage.
+### Calibration of scale for zoom lens (targeted microscope) usage.
 <img src="/img/calib_screen.png" alt="calibration screen" width="480" />
