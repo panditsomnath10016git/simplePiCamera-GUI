@@ -31,19 +31,17 @@ class App(Tk):
         self.physical_len = DoubleVar(self, 100.0)
         self.scale_bar_font_size = 10
 
-        self.resolution = (1280, 720)
-        self.framerate = 30
-        self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
-        self.camera.annotate_text_size = self.scale_bar_font_size
-
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         self.image_format = "jpeg"
 
-        self.create_frames()
+        self.resolution = (1280, 720)
+        self.framerate = 30
+        self._camera_init()
 
-        # TODO if camera not found show error dialogue box.
+        self.create_frames()
+        self._set_camera_preview_size()
 
         # default bars_per_um_per_unit_zoom calculate for initialization
         scale_unit_um = 1
@@ -51,6 +49,7 @@ class App(Tk):
         self.bars_per_um_per_unit_zoom = self.scalebar_len / (
             self.physical_len.get() * scale_unit_um * current_zoom
         )  # physical len in um
+
         # try loading calib data from calib.json else create initial file
         try:
             with open(self.save_dir + "calib.json", "r") as f:
@@ -59,20 +58,20 @@ class App(Tk):
             self.calib_data = self.bars_per_um_per_unit_zoom
             with open(self.save_dir + "calib.json", "w") as f:
                 json.dump(self.calib_data, f, indent=2)
-        self._update_fixed_scalebar()
 
+        self._update_fixed_scalebar()
         # self.bind("<Escape>", self._hide_input_window)
 
     def _camera_init(self):
         while True:
             try:
-                app.camera.start_preview()
+                self.camera = PiCamera(resolution=self.resolution, framerate=self.framerate)
+                break
             except Exception as e:
                 if not messagebox.askretrycancel(
                     title="Camera Check", message="Camera not connected <!>"
                 ):
                     self.destroy()
-        self._set_camera_preview_size()
 
     def create_frames(self):
         self.window = Frame(self.master)
@@ -256,6 +255,7 @@ class App(Tk):
 
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
+        self.camera.annotate_text_size = self.scale_bar_font_size
         self.camera.annotate_background = True
         self.camera.annotate_text = (
             "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
@@ -307,7 +307,6 @@ class App(Tk):
         self.camera.annotate_text_size = 20
         self.camera.annotate_text = f"Image saved.\n{self.saved_img_fname}"
         sleep(1)
-        self.camera.annotate_text_size = self.scale_bar_font_size
         self._update_fixed_scalebar()
 
     def _set_img_fname(self):
@@ -347,7 +346,7 @@ class App(Tk):
 if __name__ == "__main__":
     app = App()
     app.attributes("-fullscreen", True)
-    app._camera_init()
+    app.camera.start_preview()
     # self._add_overlay()
     # app.focus_force()
     # app.bind("<Return>", app._capture)
