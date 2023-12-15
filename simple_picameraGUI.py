@@ -53,11 +53,11 @@ class App(Tk):
         )  # physical len in um
         # try loading calib data from calib.json else create initial file
         try:
-            with open("calib.json", "r") as f:
+            with open(self.save_dir + "calib.json", "r") as f:
                 self.bars_per_um_per_unit_zoom = json.load(f)
         except:
             self.calib_data = self.bars_per_um_per_unit_zoom
-            with open("calib.json", "w") as f:
+            with open(self.save_dir + "calib.json", "w") as f:
                 json.dump(self.calib_data, f, indent=2)
         self._update_fixed_scalebar()
 
@@ -95,6 +95,16 @@ class App(Tk):
             self.frame_input,
             text="Save as :",
         )
+        self.scale_msr_show = Label(
+            self.frame_input,
+            width=5,
+            textvariable=self.physical_len,
+        )
+        self.scale_unit_show = Label(
+            self.frame_input,
+            width=2,
+            textvariable=self.scale_unit,
+        )
         img_format = Label(self.frame_input, text=f".{self.image_format}")
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
@@ -127,12 +137,12 @@ class App(Tk):
         self.btn_zoom.grid(row=0, column=4, padx=5)
         # self.zoom_label.grid(row=0, column=5, padx=5)
 
-        self.btn_zoom.grid(row=0, column=4, padx=5)
-        # self.zoom_label.grid(row=0, column=5, padx=5)
+        self.scale_msr_show.grid(row=0, column=5, padx=0)
+        self.scale_unit_show.grid(row=0, column=6, padx=0)
 
         # self.btn_cancel.grid(row=0, column=6, padx=10)
-        self.btn_calib.grid(row=0, column=5, padx=10)
-        self.btn_close.grid(row=0, column=6, padx=30, sticky="W")
+        self.btn_calib.grid(row=0, column=7, padx=10)
+        self.btn_close.grid(row=0, column=8, padx=30, sticky="W")
 
     def _calibration_frame(self):
         # will be visible in screen when calib button pressed in input frame by resizing the canvas
@@ -194,7 +204,7 @@ class App(Tk):
 
     def _recalculate_scale(self, *event):
         self.calib_data = self.bars_per_um_per_unit_zoom
-        with open("calib.json", "w") as f:
+        with open(self.save_dir + "calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
 
         scale_unit_um = 1
@@ -208,7 +218,9 @@ class App(Tk):
 
     def _update_fixed_scalebar(self):
         current_zoom = int(self.lens_zoom.get()[:-1])
-        phy_len = self.fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom)
+        phy_len = round(
+            self.fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom), 1
+        )
         if phy_len > 500:
             phy_len /= 1000
             self.scale_unit.set("mm")
@@ -238,7 +250,7 @@ class App(Tk):
         self.scalebar_len = len
         self.camera.annotate_background = True
         self.camera.annotate_text = (
-            "_" * len + f"\n{round(self.physical_len.get(),3)} {self.scale_unit.get()}"
+            "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
         )
 
     """def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
@@ -275,7 +287,9 @@ class App(Tk):
 
         # TODO if same named image present in directory change the filename.
         # scalebar length added to filename
-        self.saved_img_fname = f"{self.ent_img_fname.get()}_{round(self.physical_len.get(),3)}_{self.scale_unit.get()}.jpeg"
+        self.saved_img_fname = (
+            f"{self.ent_img_fname.get()}_{self.physical_len.get()}_{self.scale_unit.get()}.jpeg"
+        )
         self.camera.capture(self.save_dir + self.saved_img_fname)
         self._set_img_fname()
         self._show_img_saved()
