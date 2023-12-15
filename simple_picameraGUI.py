@@ -1,7 +1,7 @@
 import os
 import json
 from time import sleep, strftime
-from tkinter import END, Canvas, Entry, Label, Tk, StringVar, DoubleVar, Radiobutton
+from tkinter import END, Canvas, Entry, Label, Tk, StringVar, DoubleVar, Radiobutton, messagebox
 from tkinter.ttk import Button, Frame, Style, Spinbox
 
 # import numpy as np
@@ -62,6 +62,17 @@ class App(Tk):
         self._update_fixed_scalebar()
 
         # self.bind("<Escape>", self._hide_input_window)
+
+    def _camera_init(self):
+        while True:
+            try:
+                app.camera.start_preview()
+            except Exception as e:
+                if not messagebox.askretrycancel(
+                    title="Camera Check", message="Camera not connected <!>"
+                ):
+                    self.destroy()
+        self._set_camera_preview_size()
 
     def create_frames(self):
         self.window = Frame(self.master)
@@ -336,8 +347,7 @@ class App(Tk):
 if __name__ == "__main__":
     app = App()
     app.attributes("-fullscreen", True)
-    app.camera.start_preview()
-    app._set_camera_preview_size()
+    app._camera_init()
     # self._add_overlay()
     # app.focus_force()
     # app.bind("<Return>", app._capture)
