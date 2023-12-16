@@ -108,16 +108,6 @@ class App(Tk):
             self.frame_input,
             text="Save as :",
         )
-        self.scale_msr_show = Label(
-            self.frame_input,
-            width=5,
-            textvariable=self.physical_len,
-        )
-        self.scale_unit_show = Label(
-            self.frame_input,
-            width=2,
-            textvariable=self.scale_unit,
-        )
         img_format = Label(self.frame_input, text=f".{self.image_format}")
         self.ent_img_fname = Entry(self.frame_input, width=30)
         self._set_img_fname()
@@ -134,6 +124,16 @@ class App(Tk):
             width=4,
             command=self._update_fixed_scalebar,
             state="readonly",
+        )
+        self.scale_msr_show = Label(
+            self.frame_input,
+            width=5,
+            textvariable=self.physical_len,
+        )
+        self.scale_unit_show = Label(
+            self.frame_input,
+            width=3,
+            textvariable=self.scale_unit,
         )
         # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_calib = Button(
