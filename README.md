@@ -1,12 +1,17 @@
 # simplePiCamera-GUI
 A mininalistic picamera GUI to take pictures or ~videos~ with Raspberry-Pi.
 
-An effort to make an simple picamera application to take pictures and videos with picamera module in python. Initially it is a script to take only pictures but hopefully I will get time to extend it to take videos and set the different camera parameters.
+An effort to make an simple picamera application to take pictures and videos with picamera module in python. Initially it is a script to take only pictures but it will be extended to take videos and set the different camera parameters.
 
-## Keyboard shortcuts
-    - <Escape> to show or hide input panel.
+<img src="/img/GUIscreenshot.png" alt="simplePiCameraGUI screenshot" width="480" />
+
+### Update Dec16, 2023
+    - scalebar introduced in the preview which can be calibrated visually.
+    - Error message if camera not found during initalization.
+
+### Keyboard shortcuts
     - <Control+S> to quick-save instantly with default timestamped filename.
-    - <Enter> to save with the filename written in the input panel; If the input panel is hidden it works as quick-save.
     - <Control+C> closes the application.
 
-<img src="/img/screenshotGUI.png" alt="simplePiCameraGUI screenshot" width="480" />
+### Calibration of scale for zoom lens (targeted microscope) usage.
+<img src="/img/calib_screen.png" alt="calibration screen" width="480" />
