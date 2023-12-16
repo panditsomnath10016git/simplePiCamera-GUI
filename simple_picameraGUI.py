@@ -259,7 +259,6 @@ class App(Tk):
             len / (self.bars_per_um_per_unit_zoom * int(self.lens_zoom.get()[:-1])),
             1,
         )
-        self.physical_len.set(phy_len)
 
         # mm unit after 500 um
         if phy_len > 500:
@@ -267,6 +266,7 @@ class App(Tk):
             self.scale_unit.set("mm")
         else:
             self.scale_unit.set("um")
+        self.physical_len.set(phy_len)
 
         self.camera.annotate_text_size = self.scale_bar_font_size
         self.camera.annotate_background = True
