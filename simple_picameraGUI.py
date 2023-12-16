@@ -224,6 +224,7 @@ class App(Tk):
         self.calib_data = self.bars_per_um_per_unit_zoom
         with open(self.save_dir + "calib.json", "w") as f:
             json.dump(self.calib_data, f, indent=2)
+            print("calibration data saved!", self.calib_data)
 
         self._update_fixed_scalebar()
 
