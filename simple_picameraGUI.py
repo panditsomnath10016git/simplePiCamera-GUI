@@ -168,13 +168,13 @@ class App(Tk):
         )
         self.btn_bar_down = Button(
             self.frame_calib,
-            text="↓",
+            text="▼",
             command=lambda: self._add_scalebar(len=self.scalebar_len - 1),
             width=2,
         )
         self.btn_bar_up = Button(
             self.frame_calib,
-            text="↑",
+            text="▲",
             command=lambda: self._add_scalebar(len=self.scalebar_len + 1),
             width=2,
         )
