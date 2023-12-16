@@ -6,7 +6,10 @@ from tkinter.ttk import Button, Frame, Style, Spinbox
 
 # import numpy as np
 
-from picamera import PiCamera
+
+# import numpy as np
+
+from picameraa import PiCamera
 
 homedir = os.path.expanduser("~")
 
@@ -31,6 +34,7 @@ class App(Tk):
         self.scalebar_len = self.fixed_scalebar_len
         self.physical_len = DoubleVar(self, 100.0)  # um
         self.scale_bar_font_size = 10
+
 
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
         if not os.path.exists(self.save_dir):
@@ -79,13 +83,17 @@ class App(Tk):
             )  # physical len in um
             self.calib_data = self.bars_per_um_per_unit_zoom
 
+
     def create_frames(self):
         self.window = Frame(self.master)
-        self.screen_width, self.screen_height = (
+        """self.screen_width, self.screen_height = (
             self.winfo_screenwidth(),
             self.winfo_screenheight(),
-        )
-        self.frame_input_hight = round(self.screen_height / 14)
+        )"""
+        # for testing without camera
+        self.screen_width = 800
+        self.screen_height = 480
+        self.frame_input_hight = round(self.screen_height / 13)
         self.canvas_width = self.screen_width
         self.canvas_height = self.screen_height - self.frame_input_hight
         self.canvas = Frame(  # changed canvas to frame -maybe better performance
