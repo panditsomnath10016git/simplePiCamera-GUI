@@ -24,11 +24,12 @@ class App(Tk):
         self.minsize(410, 300)
         self.title("sPiCameraGUI")
 
+        # For scalebar
         self.lens_zoom = StringVar(self, "5X")
         self.scale_unit = StringVar(self, "um")
         self.fixed_scalebar_len = 50
         self.scalebar_len = self.fixed_scalebar_len
-        self.physical_len = DoubleVar(self, 100.0)
+        self.physical_len = DoubleVar(self, 100.0)  # um
         self.scale_bar_font_size = 10
 
         self.save_dir = os.path.join(homedir, "PiCamCapture", "")
@@ -43,25 +44,7 @@ class App(Tk):
         self._camera_init()
         self._set_camera_preview_size()
 
-        # default bars_per_um_per_unit_zoom calculate for initialization
-        scale_unit_um = 1
-        current_zoom = int(self.lens_zoom.get()[:-1])
-        self.bars_per_um_per_unit_zoom = self.scalebar_len / (
-            self.physical_len.get() * scale_unit_um * current_zoom
-        )  # physical len in um
-
-        # try loading calib data from calib.json else create initial file
-        try:
-            with open(self.save_dir + "calib.json", "r") as f:
-                self.bars_per_um_per_unit_zoom = json.load(f)
-                print("calibration data loaded.")
-        except:
-            self.calib_data = self.bars_per_um_per_unit_zoom
-            messagebox.showwarning(
-                "Calibration error", "Scalebar calibration data not found please recalibrate."
-            )
-            print("calibration file 'calib.json' not found in save dir.")
-
+        self._load_calib_data()
         self._update_fixed_scalebar()
         # self.bind("<Escape>", self._hide_input_window)
 
@@ -76,6 +59,25 @@ class App(Tk):
                 ):
                     self.quit()
                     exit()
+
+    def _load_calib_data(self):
+        # try loading calib data from calib.json else create initial file
+        try:
+            with open(self.save_dir + "calib.json", "r") as f:
+                self.bars_per_um_per_unit_zoom = json.load(f)
+                print("calibration data loaded.")
+        except:
+            self.calib_data = self.bars_per_um_per_unit_zoom
+            messagebox.showwarning(
+                "Calibration error", "Scalebar calibration data not found please recalibrate."
+            )
+            print(
+                "calibration file 'calib.json' not found in save dir.\nprocceding with default calibration.."
+            )
+            # default bars_per_um_per_unit_zoom calculate for initialization
+            self.bars_per_um_per_unit_zoom = self.scalebar_len / (
+                self.physical_len.get() * int(self.lens_zoom.get()[:-1])
+            )  # physical len in um
 
     def create_frames(self):
         self.window = Frame(self.master)
