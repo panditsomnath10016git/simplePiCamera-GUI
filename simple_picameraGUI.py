@@ -124,6 +124,16 @@ class App(Tk):
             command=self._update_fixed_scalebar,
             state="readonly",
         )
+        self.scale_msr_show = Label(
+            self.frame_input,
+            width=5,
+            textvariable=self.physical_len,
+        )
+        self.scale_unit_show = Label(
+            self.frame_input,
+            width=3,
+            textvariable=self.scale_unit,
+        )
         # self.zoom_label = Label(self.frame_input, text='X')
         self.scale_msr_show = Label(
             self.frame_input,
