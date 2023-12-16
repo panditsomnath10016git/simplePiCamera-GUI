@@ -5,7 +5,7 @@ An effort to make an simple picamera application to take pictures and videos wit
 
 <img src="/img/GUIscreenshot.png" alt="simplePiCameraGUI screenshot" width="480" />
 
-### Update Dec14, 2023
+### Update Dec16, 2023
     - scalebar introduced in the preview which can be calibrated visually.
     - Error message if camera not found during initalization.
 
