@@ -220,9 +220,8 @@ class App(Tk):
         if self.scale_unit.get() == "mm":
             scale_unit_um = 1000  # 1mm = 1000um
 
-        current_zoom = int(self.lens_zoom.get()[:-1])
         self.bars_per_um_per_unit_zoom = self.scalebar_len / (
-            self.physical_len.get() * scale_unit_um * current_zoom
+            self.physical_len.get() * scale_unit_um * int(self.lens_zoom.get()[:-1])
         )  # physical len in um
 
         # Save new calibration data to calib.json
@@ -234,16 +233,6 @@ class App(Tk):
         self._update_fixed_scalebar()
 
     def _update_fixed_scalebar(self):
-        current_zoom = int(self.lens_zoom.get()[:-1])
-        phy_len = round(
-            self.fixed_scalebar_len / (self.bars_per_um_per_unit_zoom * current_zoom), 1
-        )
-        if phy_len > 500:
-            phy_len /= 1000
-            self.scale_unit.set("mm")
-        else:
-            self.scale_unit.set("um")
-        self.physical_len.set(phy_len)
         self._add_scalebar(self.fixed_scalebar_len)
 
     def _update_scalebar(self):
@@ -265,11 +254,23 @@ class App(Tk):
 
     def _add_scalebar(self, len, *event):
         self.scalebar_len = len
+        # find physical length for the scalebar length
+        phy_len = round(
+            len / (self.bars_per_um_per_unit_zoom * int(self.lens_zoom.get()[:-1])),
+            1,
+        )
+
+        # mm unit after 500 um
+        if phy_len > 500:
+            phy_len /= 1000
+            self.scale_unit.set("mm")
+        else:
+            self.scale_unit.set("um")
+        self.physical_len.set(phy_len)
+
         self.camera.annotate_text_size = self.scale_bar_font_size
         self.camera.annotate_background = True
-        self.camera.annotate_text = (
-            "_" * len + f"\n{self.physical_len.get()} {self.scale_unit.get()}"
-        )
+        self.camera.annotate_text = "_" * len + f"\n{phy_len} {self.scale_unit.get()}"
 
     """def _add_overlay(self, scale_len=100, scale_wid=50, **kwargs):
         # Create an array representing a image. The shape of
