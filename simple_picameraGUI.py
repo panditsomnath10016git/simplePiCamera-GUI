@@ -211,17 +211,20 @@ class App(Tk):
         self.btn_OK.grid(row=0, column=9, padx=5)
 
     def _recalculate_scale(self, *event):
-        self.calib_data = self.bars_per_um_per_unit_zoom
-        with open(self.save_dir + "calib.json", "w") as f:
-            json.dump(self.calib_data, f, indent=2)
-
         scale_unit_um = 1
         if self.scale_unit.get() == "mm":
             scale_unit_um = 1000  # 1mm = 1000um
+
         current_zoom = int(self.lens_zoom.get()[:-1])
         self.bars_per_um_per_unit_zoom = self.scalebar_len / (
             self.physical_len.get() * scale_unit_um * current_zoom
         )  # physical len in um
+
+        # Save new calibration data to calib.json
+        self.calib_data = self.bars_per_um_per_unit_zoom
+        with open(self.save_dir + "calib.json", "w") as f:
+            json.dump(self.calib_data, f, indent=2)
+
         self._update_fixed_scalebar()
 
     def _update_fixed_scalebar(self):
