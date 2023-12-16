@@ -108,6 +108,23 @@ class App(Tk):
             self.frame_input,
             text="Save as :",
         )
+        img_format = Label(self.frame_input, text=f".{self.image_format}")
+        self.ent_img_fname = Entry(self.frame_input, width=30)
+        self._set_img_fname()
+
+        # TODO add stop button to stop for capture
+        """self.btn_cancel = Button(
+            self.frame_input, text="Cancel", command=self._hide_input_window
+        )"""
+        self.btn_zoom = Spinbox(
+            self.frame_input,
+            values=("5X", "10X", "20X", "50X", "100X"),
+            textvariable=self.lens_zoom,
+            width=4,
+            command=self._update_fixed_scalebar,
+            state="readonly",
+        )
+        # self.zoom_label = Label(self.frame_input, text='X')
         self.scale_msr_show = Label(
             self.frame_input,
             width=5,
@@ -118,32 +135,15 @@ class App(Tk):
             width=2,
             textvariable=self.scale_unit,
         )
-        img_format = Label(self.frame_input, text=f".{self.image_format}")
-        self.ent_img_fname = Entry(self.frame_input, width=30)
-        self._set_img_fname()
-
-        # TODO add stop button to stop for capture
-        """self.btn_cancel = Button(
-            self.frame_input, text="Cancel", command=self._hide_input_window
-        )"""
-        self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
-        self.btn_zoom = Spinbox(
-            self.frame_input,
-            values=("5X", "10X", "20X", "50X", "100X"),
-            textvariable=self.lens_zoom,
-            width=4,
-            command=self._update_fixed_scalebar,
-            state="readonly",
-        )
-        # self.zoom_label = Label(self.frame_input, text='X')
         self.btn_calib = Button(
             self.frame_input,
             text="Calib",
             width=5,
             command=self._show_calibration_window,
         )
-        self.btn_capture.grid(row=0, column=0)
+        self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
 
+        self.btn_capture.grid(row=0, column=0)
         img_fname_label.grid(row=0, column=1, padx=5)
         self.ent_img_fname.grid(row=0, column=2, padx=0)
         img_format.grid(row=0, column=3, padx=5)
