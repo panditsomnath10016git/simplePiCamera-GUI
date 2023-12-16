@@ -54,10 +54,13 @@ class App(Tk):
         try:
             with open(self.save_dir + "calib.json", "r") as f:
                 self.bars_per_um_per_unit_zoom = json.load(f)
+                print("calibration data loaded.")
         except:
             self.calib_data = self.bars_per_um_per_unit_zoom
-            with open(self.save_dir + "calib.json", "w") as f:
-                json.dump(self.calib_data, f, indent=2)
+            messagebox.showwarning(
+                "Calibration error", "Scalebar calibration data not found please recalibrate."
+            )
+            print("calibration file 'calib.json' not found in save dir.")
 
         self._update_fixed_scalebar()
         # self.bind("<Escape>", self._hide_input_window)
