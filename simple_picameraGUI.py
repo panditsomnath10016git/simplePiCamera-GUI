@@ -66,8 +66,7 @@ class App(Tk):
             with open(self.save_dir + "calib.json", "r") as f:
                 self.bars_per_um_per_unit_zoom = json.load(f)
                 print("calibration data loaded.")
-        except:
-            self.calib_data = self.bars_per_um_per_unit_zoom
+        except FileNotFoundError:
             messagebox.showwarning(
                 "Calibration error", "Scalebar calibration data not found please recalibrate."
             )
@@ -78,6 +77,7 @@ class App(Tk):
             self.bars_per_um_per_unit_zoom = self.scalebar_len / (
                 self.physical_len.get() * int(self.lens_zoom.get()[:-1])
             )  # physical len in um
+            self.calib_data = self.bars_per_um_per_unit_zoom
 
     def create_frames(self):
         self.window = Frame(self.master)
