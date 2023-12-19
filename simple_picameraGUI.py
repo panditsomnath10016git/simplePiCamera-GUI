@@ -142,7 +142,7 @@ class App(Tk):
         )
         self.scale_unit_show = Label(
             self.frame_input,
-            width=2,
+            width=3,
             textvariable=self.scale_unit,
         )
         self.btn_calib = Button(
