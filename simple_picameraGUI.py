@@ -151,6 +151,7 @@ class App(Tk):
             width=5,
             command=self._show_calibration_window,
         )
+        self.btn_refresh = Button(self.frame_input, text="⟳", width=3, command=self.refresh_camera)
         self.btn_close = Button(self.frame_input, text="Close", width=5, command=self.close_app)
 
         self.btn_capture.grid(row=0, column=0)
@@ -164,8 +165,9 @@ class App(Tk):
         self.scale_unit_show.grid(row=0, column=6, padx=0)
 
         # self.btn_cancel.grid(row=0, column=6, padx=10)
-        self.btn_calib.grid(row=0, column=7, padx=10)
-        self.btn_close.grid(row=0, column=8, padx=30, sticky="W")
+        self.btn_calib.grid(row=0, column=7, padx=2)
+        self.btn_refresh.grid(row=0, column=8, padx=2)
+        self.btn_close.grid(row=0, column=10, padx=2, sticky="W")
 
     def _calibration_frame(self):
         # will be visible in screen when calib button pressed in input frame by resizing the canvas
@@ -358,9 +360,13 @@ class App(Tk):
                 print(e)
         # self.bind("<Escape>", self._show_input_window)
 
+    def refresh_camera(self):
+        self.camera.start_preview()
+
     def close_app(self):
         self.camera.stop_preview()
         self.camera.close()
+        self.withdraw()
         self.destroy()
 
 
