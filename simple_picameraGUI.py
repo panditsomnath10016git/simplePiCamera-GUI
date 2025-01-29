@@ -100,6 +100,7 @@ class App(Tk):
         self.frame_input.grid(column=0, row=1, sticky="nsew")
         self.frame_calib.grid(column=0, row=2, sticky="nsew")
         self.window.pack(fill="both", expand=True)  # grid(column=0, row=0, sticky="nsew")
+        self._show_input_window()
 
     def _input_frame(self):
         self.frame_input = Frame(self.window)
@@ -348,6 +349,12 @@ class App(Tk):
                     child.configure(state="normal")
             except Exception as e:
                 print(e)
+        for child in self.frame_calib.winfo_children():
+            try:
+                if child.widgetName != "frame":  # frame has no state, so skip
+                    child.configure(state="disabled")
+            except Exception as e:
+                print(e)
 
     def _show_calibration_window(self, *event):
         self.canvas.config(height=(self.screen_height - 2 * self.frame_input_hight))
@@ -358,10 +365,18 @@ class App(Tk):
                     child.configure(state="disabled")
             except Exception as e:
                 print(e)
+        for child in self.frame_calib.winfo_children():
+            try:
+                if child.widgetName != "frame":  # frame has no state, so skip
+                    child.configure(state="normal")
+            except Exception as e:
+                print(e)
         # self.bind("<Escape>", self._show_input_window)
 
     def refresh_camera(self):
-        self.camera.start_preview()
+        self.camera.stop_preview()
+        self.destroy()
+        self.__init__()
 
     def close_app(self):
         self.camera.stop_preview()
@@ -378,5 +393,6 @@ if __name__ == "__main__":
     # app.focus_force()
     # app.bind("<Return>", app._capture)
     app.bind("<Control-s>", lambda x: app._capture(quick=True))
-    app.bind("<Control-c>", lambda x: app.close_app())
+    app.bind("<Control-q>", lambda x: app.close_app())
+    app.bind("<Control-r>", lambda x: app.refresh_camera())
     app.mainloop()
